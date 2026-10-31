@@ -351,6 +351,155 @@ struct UsernameGeneratorTests {
         #expect(count([.plain, .noVowels]) == 5)
     }
 
+    @Test func pinnedWordIsCleanedUp() {
+        #expect(UsernameOptions(pinnedWord: "  Co-le 42!").effectivePinnedWord == "cole42")
+        #expect(UsernameOptions(pinnedWord: "café").effectivePinnedWord == "caf")
+        #expect(UsernameOptions(pinnedWord: "!!! ").effectivePinnedWord == nil)
+        #expect(UsernameOptions(pinnedWord: "").effectivePinnedWord == nil)
+        let long = String(repeating: "a", count: 40)
+        #expect(UsernameOptions(pinnedWord: long).effectivePinnedWord?.count == UsernameOptions.pinnedWordMaxLength)
+    }
+
+    @Test func pinnedWordGoesAtTheChosenEnd() {
+        var options = UsernameOptions(wordCount: 2, separators: [.hyphen], wordCases: [.lower], includeNumber: false,
+                                      pinnedWord: "Cole")
+        for _ in 0..<20 {
+            #expect(generator.generate(options: options).hasPrefix("cole-"))
+        }
+        options.pinnedPosition = .end
+        for _ in 0..<20 {
+            #expect(generator.generate(options: options).hasSuffix("-cole"))
+        }
+    }
+
+    @Test(arguments: UsernameOptions.wordCountRange)
+    func pinnedWordTakesOneOfTheSlots(wordCount: Int) {
+        let options = UsernameOptions(wordCount: wordCount, separators: [.hyphen], wordCases: [.lower], includeNumber: false,
+                                      pinnedWord: "cole", pinnedPosition: .end)
+        let parts = generator.generate(options: options).split(separator: "-")
+        #expect(parts.count == wordCount)
+        #expect(parts.last == "cole")
+    }
+
+    @Test func pinnedWordFollowsCaseAndTwist() {
+        let g = UsernameGenerator(words: ["brave"])
+        let upper = UsernameOptions(wordCount: 2, wordCases: [.upper], includeNumber: false, pinnedWord: "otter")
+        #expect(g.generate(options: upper) == "OTTERBRAVE")
+        let leet = UsernameOptions(wordCount: 2, wordCases: [.lower], includeNumber: false, twists: [.leet], pinnedWord: "otter")
+        #expect(g.generate(options: leet) == "0tt3rbr4v3")
+    }
+
+    @Test func pinnedWordFillsAdjectiveOrNounSlot() {
+        let g = UsernameGenerator(adjectives: ["brave"], nouns: ["badger"])
+        var options = UsernameOptions(wordCount: 2, separators: [.hyphen], wordCases: [.lower], includeNumber: false,
+                                      pattern: .adjectiveNoun, pinnedWord: "zed")
+        #expect(g.generate(options: options) == "zed-badger")
+        options.pinnedPosition = .end
+        #expect(g.generate(options: options) == "brave-zed")
+    }
+
+    @Test func pinnedWordSetsTheAlliterationLetter() {
+        let options = UsernameOptions(wordCount: 3, separators: [.hyphen], wordCases: [.lower], includeNumber: false,
+                                      alliterate: true, pinnedWord: "bold")
+        for _ in 0..<50 {
+            let name = UsernameGenerator().generate(options: options)
+            #expect(name.split(separator: "-").allSatisfy { $0.first == "b" }, "\(name)")
+        }
+    }
+
+    @Test(arguments: [6, 10, 15, 30])
+    func pinnedWordRespectsLengthLimit(limit: Int) {
+        for word in ["cole", "averyveryverylongname"] {
+            let options = UsernameOptions(wordCount: 3, separators: [.hyphen], wordCases: [.lower],
+                                          limitLength: true, maxLength: limit, pinnedWord: word)
+            for _ in 0..<50 {
+                let name = UsernameGenerator().generate(options: options)
+                #expect(name.count <= limit, "\(name)")
+                #expect(!name.isEmpty)
+            }
+        }
+    }
+
+    @Test func overlongPinnedWordIsShortenedToFit() {
+        let options = UsernameOptions(wordCount: 2, wordCases: [.lower], limitLength: true, maxLength: 8,
+                                      pinnedWord: "abcdefghijklmnop")
+        #expect(UsernameGenerator().generate(options: options) == "abcdefgh")
+    }
+
+    @Test func keptWordAndOwnWordBothStay() {
+        let options = UsernameOptions(wordCount: 3, separators: [.hyphen], wordCases: [.lower], includeNumber: false,
+                                      pinnedWord: "cole", pinnedPosition: .start, keptWord: "otter", keptPosition: .end)
+        for _ in 0..<20 {
+            let parts = generator.generate(options: options).split(separator: "-")
+            #expect(parts.count == 3)
+            #expect(parts.first == "cole")
+            #expect(parts.last == "otter")
+        }
+    }
+
+    /// Regression: keeping a word from a result used to replace the word typed into "Your word".
+    @Test func keepingAWordDoesNotDropYourOwnWord() {
+        // The kept word was the first word of a result, so it is pinned at the start.
+        let options = UsernameOptions(wordCount: 2, wordCases: [.lower], includeNumber: false,
+                                      pinnedWord: "cole", pinnedPosition: .end, keptWord: "otter", keptPosition: .start)
+        for item in UsernameGenerator().generateDetailedBatch(options: options, count: 20) {
+            #expect(item.words == ["otter", "cole"], "\(item.words)")
+            #expect(item.text == "ottercole")
+        }
+    }
+
+    @Test func keptAndOwnWordAtTheSameEndKeepTheirOrder() {
+        let options = UsernameOptions(wordCount: 3, separators: [.hyphen], wordCases: [.lower], includeNumber: false,
+                                      pinnedWord: "cole", pinnedPosition: .end, keptWord: "otter", keptPosition: .end)
+        for _ in 0..<20 {
+            #expect(generator.generate(options: options).hasSuffix("-cole-otter"))
+        }
+    }
+
+    @Test func keepingYourOwnWordDoesNotRepeatIt() {
+        let options = UsernameOptions(wordCount: 2, separators: [.hyphen], wordCases: [.lower], includeNumber: false,
+                                      pinnedWord: "cole", keptWord: "Cole")
+        let parts = generator.generate(options: options).split(separator: "-")
+        #expect(parts.count == 2)
+        #expect(parts.filter { $0 == "cole" }.count == 1)
+    }
+
+    @Test func newestPinWinsWhenThereAreMoreThanSlots() {
+        let options = UsernameOptions(wordCount: 1, wordCases: [.lower], includeNumber: false,
+                                      pinnedWord: "cole", keptWord: "otter")
+        #expect(generator.generate(options: options) == "otter")
+    }
+
+    @Test(arguments: [8, 12, 20])
+    func twoPinsRespectLengthLimit(limit: Int) {
+        let options = UsernameOptions(wordCount: 3, separators: [.hyphen], wordCases: [.lower],
+                                      limitLength: true, maxLength: limit,
+                                      pinnedWord: "averylongname", keptWord: "anotherlongone", keptPosition: .end)
+        for _ in 0..<30 {
+            let name = generator.generate(options: options)
+            #expect(name.count <= limit, "\(name)")
+        }
+    }
+
+    @Test func pinnedWordShowsUpInDetailedBatch() {
+        let options = UsernameOptions(wordCount: 3, includeNumber: false, pinnedWord: "cole", pinnedPosition: .end)
+        for item in generator.generateDetailedBatch(options: options, count: 10) {
+            #expect(item.words.count == 3)
+            #expect(item.words.last == "cole")
+            #expect(item.text.lowercased().hasSuffix("cole"))
+        }
+    }
+
+    @Test func pinnedWordFixesOneSlotInCombinationCount() {
+        let g = UsernameGenerator(words: ["ant", "bee", "cat"])
+        func count(words: Int, pinned: String) -> Double {
+            g.combinationCount(options: UsernameOptions(wordCount: words, wordCases: [.lower], includeNumber: false, pinnedWord: pinned))
+        }
+        #expect(count(words: 2, pinned: "") == 9)
+        #expect(count(words: 2, pinned: "zed") == 3)
+        #expect(count(words: 3, pinned: "zed") == 9)
+    }
+
     @Test func combinationCountsScaleWithDistinctStyles() {
         let g = UsernameGenerator(words: ["ant", "bee", "cat"])
         let base = UsernameOptions(wordCount: 2, includeNumber: false)

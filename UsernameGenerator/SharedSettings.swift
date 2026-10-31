@@ -71,6 +71,8 @@ nonisolated enum SharedSettings {
         if let v = d.string(forKey: "twists") { options.twists = WordTwist.decode(v) }
         if let v = d.string(forKey: "pattern").flatMap(WordPattern.init(rawValue:)) { options.pattern = v }
         if let v = d.object(forKey: "alliterate") as? Bool { options.alliterate = v }
+        if let v = d.string(forKey: "customWord") { options.pinnedWord = v }
+        if let v = d.string(forKey: "customWordPosition").flatMap(PinPosition.init(rawValue:)) { options.pinnedPosition = v }
         return options
     }
 }

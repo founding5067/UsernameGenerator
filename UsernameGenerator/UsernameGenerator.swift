@@ -145,10 +145,38 @@ nonisolated enum WordPattern: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+/// Where a pinned word goes in the username.
+nonisolated enum PinPosition: String, CaseIterable, Identifiable, Sendable {
+    case start
+    case end
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .start: "Start"
+        case .end: "End"
+        }
+    }
+}
+
+/// A word fixed into one end of the username.
+nonisolated struct PinnedWord: Equatable, Sendable {
+    var word: String
+    var position: PinPosition
+}
+
+/// A username plus the words it was built from (before capitalization), so one can be kept and rerolled around.
+nonisolated struct GeneratedUsername: Equatable, Hashable, Sendable {
+    var text: String
+    var words: [String]
+}
+
 nonisolated struct UsernameOptions: Equatable {
     static let wordCountRange = 1...5
     static let digitCountRange = 1...6
     static let maxLengthRange = 6...30
+    static let pinnedWordMaxLength = 20
 
     var wordCount = 2
     /// Each username uses one of these, chosen at random.
@@ -172,6 +200,12 @@ nonisolated struct UsernameOptions: Equatable {
     var pattern = WordPattern.random
     /// Every word starts with the same letter, like BraveBadger.
     var alliterate = false
+    /// A word of your own that takes one of the word slots. Empty means none.
+    var pinnedWord = ""
+    var pinnedPosition = PinPosition.start
+    /// A word kept from a result, so the rest can be rerolled. It sits alongside your own word.
+    var keptWord = ""
+    var keptPosition = PinPosition.start
 
     var effectiveSeparators: [WordSeparator] {
         let separators = WordSeparator.allCases.filter(separators.contains)
@@ -187,6 +221,26 @@ nonisolated struct UsernameOptions: Equatable {
     var effectiveTwists: [WordTwist] {
         let twists = WordTwist.allCases.filter(twists.contains)
         return twists.isEmpty ? [.plain] : twists
+    }
+
+    /// The pinned word as typed, cleaned up: lowercase ASCII letters and digits, capped in length. Nil if nothing is left.
+    var effectivePinnedWord: String? { Self.cleaned(pinnedWord) }
+
+    var effectiveKeptWord: String? { Self.cleaned(keptWord) }
+
+    private static func cleaned(_ text: String) -> String? {
+        let cleaned = text.lowercased().filter { $0.isASCII && ($0.isLetter || $0.isNumber) }
+        let word = String(cleaned.prefix(pinnedWordMaxLength))
+        return word.isEmpty ? nil : word
+    }
+
+    /// Your own word, then the kept one. When there are too many for the words, the earliest go first.
+    /// A kept word that matches your own is not added twice.
+    var effectivePins: [PinnedWord] {
+        var pins: [PinnedWord] = []
+        if let word = effectivePinnedWord { pins.append(PinnedWord(word: word, position: pinnedPosition)) }
+        if let word = effectiveKeptWord, word != effectivePinnedWord { pins.append(PinnedWord(word: word, position: keptPosition)) }
+        return pins
     }
 
     var effectiveThemes: [WordTheme] {
@@ -213,6 +267,9 @@ nonisolated struct UsernameGenerator {
     /// With a length limit, digits are dropped first, then words, so a result always fits.
     private func plan(options: UsernameOptions, separator: WordSeparator, twist: WordTwist) -> Plan? {
         var wordCount = options.wordCount.clamped(to: UsernameOptions.wordCountRange)
+        // Each takes one of the word slots. They are never filtered, since they were chosen on purpose.
+        var pins = options.effectivePins.map { PinnedWord(word: twist.apply(to: $0.word), position: $0.position) }
+        while pins.count > wordCount { pins.removeFirst() }
         var digitCount = options.includeNumber ? options.digitCount.clamped(to: UsernameOptions.digitCountRange) : 0
         let separator = separator.rawValue
 
@@ -225,12 +282,20 @@ nonisolated struct UsernameGenerator {
             ? twist.apply(to: nouns ?? words ?? WordTheme.nouns(for: options.effectiveThemes, includingBlocked: options.includeBlockedWords))
             : []
         func makePools(for count: Int, _ transform: ([String]) -> [String]) -> [[String]] {
+            var pools: [[String]]
             switch options.pattern {
             case .random:
-                return Array(repeating: transform(anyPool), count: count)
+                pools = Array(repeating: transform(anyPool), count: count)
             case .adjectiveNoun:
-                return Array(repeating: transform(adjectivePool), count: count - 1) + [transform(nounPool)]
+                pools = Array(repeating: transform(adjectivePool), count: count - 1) + [transform(nounPool)]
             }
+            // Pins at the start fill from the front and pins at the end from the back, in order.
+            // With adjective + noun, the start is an adjective slot and the end is the noun slot.
+            let starts = pins.filter { $0.position == .start }
+            let ends = pins.filter { $0.position == .end }
+            for (index, pin) in starts.enumerated() { pools[index] = [pin.word] }
+            for (index, pin) in ends.enumerated() { pools[count - ends.count + index] = [pin.word] }
+            return pools
         }
 
         var pools = makePools(for: wordCount) { $0 }
@@ -241,7 +306,26 @@ nonisolated struct UsernameGenerator {
             while true {
                 // Digits are joined with the separator too, so they cost one extra separator.
                 let separators = wordCount - 1 + (digitCount > 0 ? 1 : 0)
-                let budget = (limit - digitCount - separator.utf8.count * separators) / wordCount
+                while pins.count > wordCount { pins.removeFirst() }
+                let pinnedLength = pins.reduce(0) { $0 + $1.word.utf8.count }
+                let freeSlots = wordCount - pins.count
+                let used = digitCount + separator.utf8.count * separators + pinnedLength
+                if freeSlots == 0 {
+                    // Only pinned words are left. Drop digits, then the earliest pin, then shorten the last word.
+                    if used <= limit {
+                        pools = makePools(for: wordCount) { $0 }
+                        break
+                    }
+                    if digitCount > 0 {
+                        digitCount -= 1
+                    } else if pins.count > 1 {
+                        pins.removeFirst()
+                    } else {
+                        pins[0].word = String(pins[0].word.prefix(limit))
+                    }
+                    continue
+                }
+                let budget = (limit - used) / freeSlots
                 // The word lists are ASCII, so UTF-8 length is the character count and much cheaper to read.
                 let fitting = makePools(for: wordCount) { $0.filter { $0.utf8.count <= budget } }
                 if !fitting.contains(where: \.isEmpty) {
@@ -290,19 +374,20 @@ nonisolated struct UsernameGenerator {
         return Prepared(plan: plan, buckets: buckets, letters: shared.sorted())
     }
 
-    private func build<R: RandomNumberGenerator>(options: UsernameOptions, prepared: Prepared, using rng: inout R) -> String {
+    private func build<R: RandomNumberGenerator>(options: UsernameOptions, prepared: Prepared, using rng: inout R) -> GeneratedUsername {
         var pools = prepared.plan.pools
         if let letter = prepared.letters.randomElement(using: &rng) {
             pools = prepared.buckets.map { $0[letter] ?? [] }
         }
 
         let wordCase = options.effectiveCases.randomElement(using: &rng)!
-        var parts = wordCase.apply(to: pools.map { $0.randomElement(using: &rng)! })
+        let words = pools.map { $0.randomElement(using: &rng)! }
+        var parts = wordCase.apply(to: words)
         if prepared.plan.digitCount > 0 {
             let digits = (0..<prepared.plan.digitCount).map { _ in String(Int.random(in: 0...9, using: &rng)) }
             parts.append(digits.joined())
         }
-        return parts.joined(separator: prepared.plan.separator)
+        return GeneratedUsername(text: parts.joined(separator: prepared.plan.separator), words: words)
     }
 
     private struct PlanKey: Hashable {
@@ -311,7 +396,7 @@ nonisolated struct UsernameGenerator {
     }
 
     /// Plans are built once per separator and twist and kept in `cache`, so a batch doesn't repeat that work.
-    private func generate<R: RandomNumberGenerator>(options: UsernameOptions, cache: inout [PlanKey: Prepared], using rng: inout R) -> String {
+    private func generate<R: RandomNumberGenerator>(options: UsernameOptions, cache: inout [PlanKey: Prepared], using rng: inout R) -> GeneratedUsername {
         let key = PlanKey(
             separator: options.effectiveSeparators.randomElement(using: &rng)!,
             twist: options.effectiveTwists.randomElement(using: &rng)!
@@ -319,7 +404,7 @@ nonisolated struct UsernameGenerator {
         if cache[key] == nil {
             cache[key] = prepare(options: options, separator: key.separator, twist: key.twist)
         }
-        guard let prepared = cache[key] else { return "" }
+        guard let prepared = cache[key] else { return GeneratedUsername(text: "", words: []) }
         return build(options: options, prepared: prepared, using: &rng)
     }
 
@@ -327,7 +412,7 @@ nonisolated struct UsernameGenerator {
     /// The default random source is the system's cryptographically secure generator.
     func generate<R: RandomNumberGenerator>(options: UsernameOptions, using rng: inout R) -> String {
         var cache: [PlanKey: Prepared] = [:]
-        return generate(options: options, cache: &cache, using: &rng)
+        return generate(options: options, cache: &cache, using: &rng).text
     }
 
     func generate(options: UsernameOptions) -> String {
@@ -336,6 +421,13 @@ nonisolated struct UsernameGenerator {
     }
 
     func generateBatch(options: UsernameOptions, count: Int) -> [String] {
+        var rng = SystemRandomNumberGenerator()
+        var cache: [PlanKey: Prepared] = [:]
+        return (0..<count).map { _ in generate(options: options, cache: &cache, using: &rng).text }
+    }
+
+    /// Like `generateBatch`, but keeps each username's words so one can be kept while the rest are rerolled.
+    func generateDetailedBatch(options: UsernameOptions, count: Int) -> [GeneratedUsername] {
         var rng = SystemRandomNumberGenerator()
         var cache: [PlanKey: Prepared] = [:]
         return (0..<count).map { _ in generate(options: options, cache: &cache, using: &rng) }

@@ -33,7 +33,13 @@ struct ContentView: View {
     @AppStorage("pattern", store: SharedSettings.defaults) private var pattern = UsernameOptions().pattern
     @AppStorage("alliterate", store: SharedSettings.defaults) private var alliterate = UsernameOptions().alliterate
 
-    @State private var usernames: [String] = []
+    // Your own word is an option, so it is remembered like the others.
+    @AppStorage("customWord", store: SharedSettings.defaults) private var customWord = UsernameOptions().pinnedWord
+    @AppStorage("customWordPosition", store: SharedSettings.defaults) private var customWordPosition = UsernameOptions().pinnedPosition
+
+    @State private var usernames: [GeneratedUsername] = []
+    /// A word kept from a result while the rest are rerolled. Lives only until you clear it or close the app.
+    @State private var keptWord: KeptWord?
     @State private var copied: String?
     /// Worked out when the options change, not on every redraw.
     @State private var combinations = 0.0
@@ -57,7 +63,11 @@ struct ContentView: View {
             twists: twists,
             // With one word there is nothing to pattern or alliterate. The saved choices are kept.
             pattern: wordCount > 1 ? pattern : .random,
-            alliterate: wordCount > 1 && alliterate
+            alliterate: wordCount > 1 && alliterate,
+            pinnedWord: customWord,
+            pinnedPosition: customWordPosition,
+            keptWord: keptWord?.word ?? "",
+            keptPosition: keptWord?.position ?? .start
         )
     }
 
@@ -101,7 +111,25 @@ struct ContentView: View {
         NavigationStack {
             Form {
                 Section {
-                    ForEach(usernames, id: \.self) { name in
+                    if let keptWord {
+                        HStack {
+                            Label("Keeping “\(keptWord.word)”", systemImage: "pin.fill")
+                            Spacer()
+                            Button {
+                                self.keptWord = nil
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Stop keeping “\(keptWord.word)”")
+                            .accessibilityIdentifier("clearKept")
+                        }
+                        .accessibilityIdentifier("keptWord")
+                    }
+
+                    ForEach(usernames, id: \.text) { generated in
+                        let name = generated.text
                         Button {
                             copy(name)
                         } label: {
@@ -122,6 +150,16 @@ struct ContentView: View {
                         .accessibilityValue(copied == name ? "Copied" : "")
                         .accessibilityHint("Copies to the clipboard")
                         .accessibilityIdentifier("username")
+                        .contextMenu {
+                            // One word has nothing left to reroll.
+                            if generated.words.count > 1 {
+                                ForEach(Array(generated.words.enumerated()), id: \.offset) { index, word in
+                                    Button("Keep “\(word)”") {
+                                        keptWord = KeptWord(word: word, position: index == 0 ? .start : .end)
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     Button {
@@ -142,7 +180,7 @@ struct ContentView: View {
                         .accessibilityIdentifier("strength")
                 }
 
-                Section("Words") {
+                Section {
                     NumberStepper(title: "Number of words", value: $wordCount,
                                   range: UsernameOptions.wordCountRange, id: "wordCount")
                     MultiSelectMenu(
@@ -174,10 +212,27 @@ struct ContentView: View {
                         id: "capitalizationMenu", title: "Capitalization", plural: "styles", label: \.label,
                         selection: Binding { wordCases } set: { wordCasesRaw = WordCase.encode($0) }
                     )
+                    TextField("Your word", text: $customWord)
+                        .accessibilityIdentifier("customWord")
+                        #if os(iOS) || os(visionOS)
+                        .textInputAutocapitalization(.never)
+                        .keyboardType(.asciiCapable)
+                        #endif
+                        .autocorrectionDisabled()
+                    if !customWord.isEmpty {
+                        Picker("Your word goes at the", selection: $customWordPosition) {
+                            ForEach(PinPosition.allCases) { Text($0.label).tag($0) }
+                        }
+                        .accessibilityIdentifier("customWordPosition")
+                    }
                     MultiSelectMenu(
                         id: "twistMenu", title: "Spelling", plural: "spellings", label: \.label,
                         selection: Binding { twists } set: { twistsRaw = WordTwist.encode($0) }
                     )
+                } header: {
+                    Text("Words")
+                } footer: {
+                    Text("Your word takes one of the word slots and can be letters and numbers. Press and hold (or right-click) a username to keep one of its words and reroll the rest.")
                 }
 
                 Section("Numbers") {
@@ -252,6 +307,10 @@ struct ContentView: View {
             combinations = generator.combinationCount(options: options)
             generate()
         }
+        .onChange(of: wordCount) {
+            // One word has nothing left to reroll around.
+            if wordCount == 1 { keptWord = nil }
+        }
         .onChange(of: options) {
             combinations = generator.combinationCount(options: options)
             generate()
@@ -278,7 +337,7 @@ struct ContentView: View {
     /// Only the Generate button animates the swap. Option changes happen while a menu or stepper is
     /// animating, and a second animation on the same rows triggers UIKit's "Decomposition" warning.
     private func generate(animated: Bool = false) {
-        let batch = generator.generateBatch(options: options, count: Self.batchSize)
+        let batch = generator.generateDetailedBatch(options: options, count: Self.batchSize)
         var transaction = Transaction(animation: animated ? .snappy : nil)
         transaction.disablesAnimations = !animated
         withTransaction(transaction) {
@@ -296,6 +355,11 @@ struct ContentView: View {
         #endif
         withAnimation { copied = name }
     }
+}
+
+private struct KeptWord: Equatable {
+    var word: String
+    var position: PinPosition
 }
 
 /// A row that opens a menu of checkmarks. At least one choice always stays selected.

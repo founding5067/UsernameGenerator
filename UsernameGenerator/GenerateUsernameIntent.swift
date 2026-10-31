@@ -38,6 +38,13 @@ extension WordTwist: AppEnum {
     }
 }
 
+extension PinPosition: AppEnum {
+    nonisolated static var typeDisplayRepresentation: TypeDisplayRepresentation { "Position" }
+    nonisolated static var caseDisplayRepresentations: [PinPosition: DisplayRepresentation] {
+        [.start: "Start", .end: "End"]
+    }
+}
+
 /// Separate from `WordSeparator` because its `none` case has an empty raw value.
 enum SeparatorChoice: String, AppEnum {
     case none, hyphen, underscore, period, plus, tilde
@@ -90,6 +97,12 @@ struct GenerateUsernameIntent: AppIntent {
     @Parameter(title: "Spellings", default: [.plain])
     var twists: [WordTwist]
 
+    @Parameter(title: "Your Word")
+    var yourWord: String?
+
+    @Parameter(title: "Your Word Position", default: .start)
+    var yourWordPosition: PinPosition
+
     @Parameter(title: "Pattern", default: .random)
     var pattern: WordPattern
 
@@ -103,6 +116,8 @@ struct GenerateUsernameIntent: AppIntent {
             \.$alliterate
             \.$wordCases
             \.$twists
+            \.$yourWord
+            \.$yourWordPosition
             \.$digits
             \.$maxLength
             \.$lettersAndDigitsOnly
@@ -124,7 +139,9 @@ struct GenerateUsernameIntent: AppIntent {
             includeBlockedWords: includeBlockedWords,
             twists: Set(twists),
             pattern: pattern,
-            alliterate: alliterate
+            alliterate: alliterate,
+            pinnedWord: yourWord ?? "",
+            pinnedPosition: yourWordPosition
         )
         let username = UsernameGenerator().generate(options: options)
         return .result(value: username, dialog: "\(username)")
