@@ -34,6 +34,9 @@ struct ContentView: View {
 
     @State private var usernames: [String] = []
     @State private var copied: String?
+    /// Worked out when the options change, not on every redraw.
+    @State private var combinations = 0.0
+    @Environment(\.scenePhase) private var scenePhase
 
     private static let batchSize = 5
     private let generator = UsernameGenerator()
@@ -76,7 +79,7 @@ struct ContentView: View {
     }
 
     private var strengthText: String {
-        let count = generator.combinationCount(options: options)
+        let count = combinations
         let formatted = count >= 1e15
             ? "10^\(Int(log10(count)))"
             : count.formatted(.number.notation(.compactName).precision(.significantDigits(2)))
@@ -84,7 +87,7 @@ struct ContentView: View {
     }
 
     private var strengthColor: Color {
-        generator.combinationCount(options: options) < 1e6 ? .orange : .green
+        combinations < 1e6 ? .orange : .green
     }
 
     var body: some View {
@@ -113,7 +116,7 @@ struct ContentView: View {
                     }
 
                     Button {
-                        generate()
+                        generate(animated: true)
                     } label: {
                         Text("Generate")
                             .frame(maxWidth: .infinity)
@@ -220,16 +223,41 @@ struct ContentView: View {
         #if os(macOS)
         .frame(minWidth: 420, idealWidth: 460, minHeight: 640)
         #endif
-        .onAppear(perform: generate)
-        .onChange(of: options) {
+        .onAppear {
+            combinations = generator.combinationCount(options: options)
             generate()
-            WidgetCenter.shared.reloadTimelines(ofKind: SharedSettings.widgetKind)
+        }
+        .onChange(of: options) {
+            combinations = generator.combinationCount(options: options)
+            generate()
+        }
+        // The widget isn't visible while the app is open, so refresh it once when leaving.
+        .onChange(of: scenePhase) {
+            if scenePhase != .active {
+                WidgetCenter.shared.reloadTimelines(ofKind: SharedSettings.widgetKind)
+            }
+        }
+        .task(priority: .utility) {
+            // Load the theme lists now instead of on the first tap that needs them.
+            await Task.detached {
+                for theme in WordTheme.allCases {
+                    _ = theme.words(includingBlocked: true)
+                    _ = theme.words(includingBlocked: false)
+                }
+                _ = WordList.adjectives
+                _ = WordList.nouns
+            }.value
         }
     }
 
-    private func generate() {
-        withAnimation(.snappy) {
-            usernames = generator.generateBatch(options: options, count: Self.batchSize)
+    /// Only the Generate button animates the swap. Option changes happen while a menu or stepper is
+    /// animating, and a second animation on the same rows triggers UIKit's "Decomposition" warning.
+    private func generate(animated: Bool = false) {
+        let batch = generator.generateBatch(options: options, count: Self.batchSize)
+        var transaction = Transaction(animation: animated ? .snappy : nil)
+        transaction.disablesAnimations = !animated
+        withTransaction(transaction) {
+            usernames = batch
             copied = nil
         }
     }

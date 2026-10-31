@@ -166,19 +166,20 @@ nonisolated struct UsernameGenerator {
         var digitCount = options.includeNumber ? options.digitCount.clamped(to: UsernameOptions.digitCountRange) : 0
         let separator = separator.rawValue
 
-        func sources(for count: Int) -> [[String]] {
+        // Each distinct source is filtered once, however many slots share it.
+        func makePools(for count: Int, _ transform: ([String]) -> [String]) -> [[String]] {
             switch options.pattern {
             case .random:
                 let source = words ?? WordTheme.words(for: options.effectiveThemes, includingBlocked: options.includeBlockedWords)
-                return Array(repeating: source, count: count)
+                return Array(repeating: transform(source), count: count)
             case .adjectiveNoun:
                 let adjectivePool = adjectives ?? words ?? WordList.adjectives
                 let nounPool = nouns ?? words ?? WordTheme.nouns(for: options.effectiveThemes, includingBlocked: options.includeBlockedWords)
-                return Array(repeating: adjectivePool, count: count - 1) + [nounPool]
+                return Array(repeating: transform(adjectivePool), count: count - 1) + [transform(nounPool)]
             }
         }
 
-        var pools = sources(for: wordCount)
+        var pools = makePools(for: wordCount) { $0 }
         guard !pools.contains(where: \.isEmpty) else { return nil }
 
         if options.limitLength {
@@ -186,9 +187,9 @@ nonisolated struct UsernameGenerator {
             while true {
                 // Digits are joined with the separator too, so they cost one extra separator.
                 let separators = wordCount - 1 + (digitCount > 0 ? 1 : 0)
-                let budget = (limit - digitCount - separator.count * separators) / wordCount
-                let sourcePools = sources(for: wordCount)
-                let fitting = sourcePools.map { $0.filter { $0.count <= budget } }
+                let budget = (limit - digitCount - separator.utf8.count * separators) / wordCount
+                // The word lists are ASCII, so UTF-8 length is the character count and much cheaper to read.
+                let fitting = makePools(for: wordCount) { $0.filter { $0.utf8.count <= budget } }
                 if !fitting.contains(where: \.isEmpty) {
                     pools = fitting
                     break
@@ -199,9 +200,9 @@ nonisolated struct UsernameGenerator {
                     wordCount -= 1
                 } else {
                     // Nothing in the list is short enough. Use the shortest word available.
-                    pools = sourcePools.map { pool in
-                        let shortest = pool.map(\.count).min()!
-                        return pool.filter { $0.count == shortest }
+                    pools = makePools(for: wordCount) { pool in
+                        let shortest = pool.map(\.utf8.count).min()!
+                        return pool.filter { $0.utf8.count == shortest }
                     }
                     break
                 }
@@ -210,30 +211,61 @@ nonisolated struct UsernameGenerator {
         return Plan(pools: pools, digitCount: digitCount, separator: separator)
     }
 
-    /// First letters that every slot has a word for. Empty means alliteration isn't possible.
-    private func sharedLetters(_ pools: [[String]]) -> [Character] {
-        let sets = pools.map { Set($0.compactMap(\.first)) }
-        guard let first = sets.first else { return [] }
-        return sets.dropFirst().reduce(first) { $0.intersection($1) }.sorted()
+    /// A plan plus, when alliterating, each slot's words grouped by first letter.
+    private struct Prepared {
+        var plan: Plan
+        var buckets: [[Character: [String]]] = []
+        /// First letters that every slot has a word for. Empty means alliteration isn't possible.
+        var letters: [Character] = []
+    }
+
+    private func prepare(options: UsernameOptions, separator: WordSeparator) -> Prepared? {
+        guard let plan = plan(options: options, separator: separator) else { return nil }
+        guard options.alliterate else { return Prepared(plan: plan) }
+        // Slots that share a pool (the same array buffer) are grouped once.
+        var buckets: [[Character: [String]]] = []
+        for (index, pool) in plan.pools.enumerated() {
+            if index > 0, pool == plan.pools[index - 1] {
+                buckets.append(buckets[index - 1])
+            } else {
+                buckets.append(Dictionary(grouping: pool) { $0.first! })
+            }
+        }
+        let keySets = buckets.map { Set($0.keys) }
+        let shared = keySets.dropFirst().reduce(keySets.first ?? []) { $0.intersection($1) }
+        return Prepared(plan: plan, buckets: buckets, letters: shared.sorted())
+    }
+
+    private func build<R: RandomNumberGenerator>(options: UsernameOptions, prepared: Prepared, using rng: inout R) -> String {
+        var pools = prepared.plan.pools
+        if let letter = prepared.letters.randomElement(using: &rng) {
+            pools = prepared.buckets.map { $0[letter] ?? [] }
+        }
+
+        let wordCase = options.effectiveCases.randomElement(using: &rng)!
+        var parts = wordCase.apply(to: pools.map { $0.randomElement(using: &rng)! })
+        if prepared.plan.digitCount > 0 {
+            let digits = (0..<prepared.plan.digitCount).map { _ in String(Int.random(in: 0...9, using: &rng)) }
+            parts.append(digits.joined())
+        }
+        return parts.joined(separator: prepared.plan.separator)
+    }
+
+    /// Plans are built once per separator and kept in `cache`, so a batch doesn't repeat that work.
+    private func generate<R: RandomNumberGenerator>(options: UsernameOptions, cache: inout [WordSeparator: Prepared], using rng: inout R) -> String {
+        let separator = options.effectiveSeparators.randomElement(using: &rng)!
+        if cache[separator] == nil {
+            cache[separator] = prepare(options: options, separator: separator)
+        }
+        guard let prepared = cache[separator] else { return "" }
+        return build(options: options, prepared: prepared, using: &rng)
     }
 
     /// Builds a username from random words, optionally followed by random digits.
     /// The default random source is the system's cryptographically secure generator.
     func generate<R: RandomNumberGenerator>(options: UsernameOptions, using rng: inout R) -> String {
-        let separator = options.effectiveSeparators.randomElement(using: &rng)!
-        guard var plan = plan(options: options, separator: separator) else { return "" }
-
-        if options.alliterate, let letter = sharedLetters(plan.pools).randomElement(using: &rng) {
-            plan.pools = plan.pools.map { $0.filter { $0.first == letter } }
-        }
-
-        let wordCase = options.effectiveCases.randomElement(using: &rng)!
-        var parts = wordCase.apply(to: plan.pools.map { $0.randomElement(using: &rng)! })
-        if plan.digitCount > 0 {
-            let digits = (0..<plan.digitCount).map { _ in String(Int.random(in: 0...9, using: &rng)) }
-            parts.append(digits.joined())
-        }
-        return parts.joined(separator: plan.separator)
+        var cache: [WordSeparator: Prepared] = [:]
+        return generate(options: options, cache: &cache, using: &rng)
     }
 
     func generate(options: UsernameOptions) -> String {
@@ -243,7 +275,8 @@ nonisolated struct UsernameGenerator {
 
     func generateBatch(options: UsernameOptions, count: Int) -> [String] {
         var rng = SystemRandomNumberGenerator()
-        return (0..<count).map { _ in generate(options: options, using: &rng) }
+        var cache: [WordSeparator: Prepared] = [:]
+        return (0..<count).map { _ in generate(options: options, cache: &cache, using: &rng) }
     }
 
     /// How many different usernames these options can produce. A `Double` because five words
@@ -252,15 +285,15 @@ nonisolated struct UsernameGenerator {
         func product(_ pools: [[String]]) -> Double {
             pools.reduce(1) { $0 * Double($1.count) }
         }
-        func count(_ plan: Plan) -> Double {
+        func count(_ prepared: Prepared) -> Double {
+            let plan = prepared.plan
             // Styles that look identical for this many words (camel and lower with one word) count once.
             let sample = Array(repeating: "ab", count: plan.pools.count)
             let styles = Double(Set(options.effectiveCases.map { $0.apply(to: sample) }).count)
             let digits = pow(10, Double(plan.digitCount)) * styles
-            let letters = options.alliterate ? sharedLetters(plan.pools) : []
-            guard !letters.isEmpty else { return product(plan.pools) * digits }
-            let words = letters.reduce(0.0) { total, letter in
-                total + product(plan.pools.map { $0.filter { $0.first == letter } })
+            guard !prepared.letters.isEmpty else { return product(plan.pools) * digits }
+            let words = prepared.letters.reduce(0.0) { total, letter in
+                total + prepared.buckets.reduce(1.0) { $0 * Double($1[letter]?.count ?? 0) }
             }
             return words * digits
         }
@@ -268,13 +301,23 @@ nonisolated struct UsernameGenerator {
         var total = 0.0
         // A lone word or number has nothing to join, so every separator gives the same username.
         var countedUnjoined = false
+        // Without a length limit the separator doesn't change the plan, so work out its count once.
+        var shared: (count: Double, unjoined: Bool)?
         for separator in options.effectiveSeparators {
-            guard let plan = plan(options: options, separator: separator) else { return 0 }
-            if plan.pools.count + (plan.digitCount > 0 ? 1 : 0) <= 1 {
+            let result: (count: Double, unjoined: Bool)
+            if let shared, !options.limitLength {
+                result = shared
+            } else {
+                guard let prepared = prepare(options: options, separator: separator) else { return 0 }
+                let plan = prepared.plan
+                result = (count(prepared), plan.pools.count + (plan.digitCount > 0 ? 1 : 0) <= 1)
+                shared = result
+            }
+            if result.unjoined {
                 if countedUnjoined { continue }
                 countedUnjoined = true
             }
-            total += count(plan)
+            total += result.count
         }
         return total
     }

@@ -82,18 +82,40 @@ nonisolated enum WordTheme: String, CaseIterable, Codable, Identifiable, Sendabl
 
     /// The combined vocabulary of several themes, without repeats.
     static func words(for themes: [WordTheme], includingBlocked: Bool) -> [String] {
-        union(themes) { $0.words(includingBlocked: includingBlocked) }
+        union(themes, kind: includingBlocked ? "wordsAll:" : "words:") { $0.words(includingBlocked: includingBlocked) }
     }
 
     static func nouns(for themes: [WordTheme], includingBlocked: Bool) -> [String] {
-        union(themes) { $0.nouns(includingBlocked: includingBlocked) }
+        union(themes, kind: includingBlocked ? "nounsAll:" : "nouns:") { $0.nouns(includingBlocked: includingBlocked) }
     }
 
-    private static func union(_ themes: [WordTheme], _ words: (WordTheme) -> [String]) -> [String] {
+    private static func union(_ themes: [WordTheme], kind: String, _ words: (WordTheme) -> [String]) -> [String] {
         guard themes.count > 1 else { return words(themes.first ?? .any) }
+        let key = kind + themes.map(\.rawValue).joined(separator: ",")
+        if let cached = unionCache.value(for: key) { return cached }
         var seen = Set<String>()
-        return themes.flatMap(words).filter { seen.insert($0).inserted }
+        let merged = themes.flatMap(words).filter { seen.insert($0).inserted }
+        unionCache.set(merged, for: key)
+        return merged
     }
+
+    /// Merged vocabularies are rebuilt only when the combination of themes changes.
+    private final class UnionCache: @unchecked Sendable {
+        private let lock = NSLock()
+        private var storage: [String: [String]] = [:]
+
+        func value(for key: String) -> [String]? {
+            lock.lock(); defer { lock.unlock() }
+            return storage[key]
+        }
+
+        func set(_ words: [String], for key: String) {
+            lock.lock(); defer { lock.unlock() }
+            storage[key] = words
+        }
+    }
+
+    private static let unionCache = UnionCache()
 
     private static let unfilteredCache: [WordTheme: [String]] = Dictionary(uniqueKeysWithValues: allCases.map { theme in
         (theme, theme == .any ? WordList.effUnfiltered : WordList.load(resource: theme.rawValue))
