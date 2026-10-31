@@ -20,7 +20,7 @@ extension SetStorable {
     }
 }
 
-nonisolated enum WordSeparator: String, CaseIterable, Codable, Identifiable, Sendable, SetStorable {
+nonisolated enum WordSeparator: String, CaseIterable, Identifiable, Sendable, SetStorable {
     case none = ""
     case hyphen = "-"
     case underscore = "_"
@@ -42,7 +42,7 @@ nonisolated enum WordSeparator: String, CaseIterable, Codable, Identifiable, Sen
     }
 }
 
-nonisolated enum WordCase: String, CaseIterable, Codable, Identifiable, Sendable, SetStorable {
+nonisolated enum WordCase: String, CaseIterable, Identifiable, Sendable, SetStorable {
     case lower
     case title
     case camel
@@ -85,10 +85,9 @@ nonisolated enum WordCase: String, CaseIterable, Codable, Identifiable, Sendable
             }
         }
     }
-
 }
 
-nonisolated enum WordPattern: String, CaseIterable, Codable, Identifiable, Sendable {
+nonisolated enum WordPattern: String, CaseIterable, Identifiable, Sendable {
     case random
     case adjectiveNoun
 
@@ -102,7 +101,7 @@ nonisolated enum WordPattern: String, CaseIterable, Codable, Identifiable, Senda
     }
 }
 
-nonisolated struct UsernameOptions: Codable, Equatable {
+nonisolated struct UsernameOptions: Equatable {
     static let wordCountRange = 1...5
     static let digitCountRange = 1...6
     static let maxLengthRange = 6...30

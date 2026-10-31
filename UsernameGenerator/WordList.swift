@@ -24,8 +24,8 @@ nonisolated enum WordList {
     /// Hand-picked nouns from the EFF list, used for the noun slot when the theme is Any.
     static let nouns: [String] = load(resource: "nouns").filter { !blocked.contains($0) }
 
-    static func load(resource: String, bundle: Bundle = .main) -> [String] {
-        guard let url = bundle.url(forResource: resource, withExtension: "txt"),
+    static func load(resource: String) -> [String] {
+        guard let url = Bundle.main.url(forResource: resource, withExtension: "txt"),
               let contents = try? String(contentsOf: url, encoding: .utf8) else {
             assertionFailure("Missing word list \(resource).txt in bundle")
             return []
@@ -38,7 +38,7 @@ nonisolated enum WordList {
 }
 
 /// Optional vocabularies. Each theme file is a hand-picked subset of the EFF list.
-nonisolated enum WordTheme: String, CaseIterable, Codable, Identifiable, Sendable, SetStorable {
+nonisolated enum WordTheme: String, CaseIterable, Identifiable, Sendable, SetStorable {
     case any
     case animals
     case nature

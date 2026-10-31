@@ -245,8 +245,6 @@ final class UsernameGeneratorUITests: XCTestCase {
         #if !os(macOS)
         // The menu stays open on iOS and visionOS so several choices can be made. Tap outside to close it.
         app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.12)).tap()
-        #endif
-        #if !os(macOS)
         // The menu row may have scrolled out of view, and a missing element can't be read.
         reveal(element("separatorMenu"))
         wait("Separator menu does not show 2 separators") { element("separatorMenu").label.contains("2 separators") }
@@ -261,12 +259,5 @@ final class UsernameGeneratorUITests: XCTestCase {
             sawHyphen = usernames.contains { $0.contains("-") }
         }
         XCTAssertTrue(sawHyphen)
-    }
-
-    @MainActor
-    func testLaunchPerformance() throws {
-        measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
-        }
     }
 }
