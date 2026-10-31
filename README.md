@@ -5,6 +5,9 @@ A small, private username generator for iPhone, iPad, Mac and Apple Vision Pro.
 Pick how many words, a separator, the capitalization, and whether to add digits. You get five options at once, like `QuietOtter4821` or `brave-falcon-07`. Tap one to copy it.
 
 - **Themes:** animals, nature, space or food vocabularies.
+- **Patterns:** *Adjective + noun* gives names like `BraveBadger`, and *Alliterate* makes every word start with the same letter.
+- **Strength meter:** shows how many usernames your current settings can produce.
+- **Control Center:** add the *New Username* control to copy a fresh username in one tap.
 - **Site rules:** cap the length (6–30) or allow letters and numbers only. If a limit is tight, digits and then words are dropped so every result fits.
 - **Shortcuts, Siri and Spotlight:** a *Generate Username* action with all the same options.
 - **Safari extension:** click the toolbar button for five usernames. Click one to copy it and fill the text field you're in. On Mac you can also right-click a field and choose *Generate Username*. Turn it on in Safari's Extensions settings.

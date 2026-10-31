@@ -19,15 +19,18 @@ import AppKit
 struct ContentView: View {
     // Only the option choices are remembered. Generated usernames are never stored.
     @AppStorage("wordCount", store: SharedSettings.defaults) private var wordCount = UsernameOptions().wordCount
-    @AppStorage("separator", store: SharedSettings.defaults) private var separator = UsernameOptions().separator
-    @AppStorage("wordCase", store: SharedSettings.defaults) private var wordCase = UsernameOptions().wordCase
+    @AppStorage("separators", store: SharedSettings.defaults) private var separatorsRaw = WordSeparator.encode(UsernameOptions().separators)
+    @AppStorage("wordCases", store: SharedSettings.defaults) private var wordCasesRaw = WordCase.encode(UsernameOptions().wordCases)
     @AppStorage("includeNumber", store: SharedSettings.defaults) private var includeNumber = UsernameOptions().includeNumber
     @AppStorage("digitCount", store: SharedSettings.defaults) private var digitCount = UsernameOptions().digitCount
-    @AppStorage("theme", store: SharedSettings.defaults) private var theme = UsernameOptions().theme
+    @AppStorage("themes", store: SharedSettings.defaults) private var themesRaw = WordTheme.encode(UsernameOptions().themes)
     @AppStorage("limitLength", store: SharedSettings.defaults) private var limitLength = UsernameOptions().limitLength
     @AppStorage("maxLength", store: SharedSettings.defaults) private var maxLength = UsernameOptions().maxLength
     @AppStorage("lettersAndDigitsOnly", store: SharedSettings.defaults) private var lettersAndDigitsOnly = UsernameOptions().lettersAndDigitsOnly
     @AppStorage("includeBlockedWords", store: SharedSettings.defaults) private var includeBlockedWords = UsernameOptions().includeBlockedWords
+
+    @AppStorage("pattern", store: SharedSettings.defaults) private var pattern = UsernameOptions().pattern
+    @AppStorage("alliterate", store: SharedSettings.defaults) private var alliterate = UsernameOptions().alliterate
 
     @State private var usernames: [String] = []
     @State private var copied: String?
@@ -38,16 +41,49 @@ struct ContentView: View {
     private var options: UsernameOptions {
         UsernameOptions(
             wordCount: wordCount,
-            separator: separator,
-            wordCase: wordCase,
+            separators: separators,
+            wordCases: wordCases,
             includeNumber: includeNumber,
             digitCount: digitCount,
-            theme: theme,
+            themes: themes,
             limitLength: limitLength,
             maxLength: maxLength,
             lettersAndDigitsOnly: lettersAndDigitsOnly,
-            includeBlockedWords: includeBlockedWords
+            includeBlockedWords: includeBlockedWords,
+            pattern: pattern,
+            alliterate: alliterate
         )
+    }
+
+    private var separators: Set<WordSeparator> {
+        let separators = WordSeparator.decode(separatorsRaw)
+        return separators.isEmpty ? [.none] : separators
+    }
+
+    private var wordCases: Set<WordCase> {
+        let cases = WordCase.decode(wordCasesRaw)
+        return cases.isEmpty ? [.title] : cases
+    }
+
+    private var themes: Set<WordTheme> {
+        let themes = WordTheme.decode(themesRaw)
+        return themes.isEmpty ? [.any] : themes
+    }
+
+    init() {
+        SharedSettings.migrateLegacyKeys()
+    }
+
+    private var strengthText: String {
+        let count = generator.combinationCount(options: options)
+        let formatted = count >= 1e15
+            ? "10^\(Int(log10(count)))"
+            : count.formatted(.number.notation(.compactName).precision(.significantDigits(2)))
+        return "About \(formatted) possible usernames"
+    }
+
+    private var strengthColor: Color {
+        generator.combinationCount(options: options) < 1e6 ? .orange : .green
     }
 
     var body: some View {
@@ -86,22 +122,32 @@ struct ContentView: View {
                     .keyboardShortcut("r", modifiers: .command)
                 } header: {
                     Text("Tap a username to copy it")
+                } footer: {
+                    Label(strengthText, systemImage: "gauge.with.dots.needle.50percent")
+                        .foregroundStyle(strengthColor)
                 }
 
                 Section("Words") {
                     Stepper(value: $wordCount, in: UsernameOptions.wordCountRange) {
                         LabeledContent("Number of words", value: "\(wordCount)")
                     }
-                    Picker("Theme", selection: $theme) {
-                        ForEach(WordTheme.allCases) { Text($0.label).tag($0) }
+                    MultiSelectMenu(
+                        title: "Theme", plural: "themes", label: \.label,
+                        selection: Binding { themes } set: { themesRaw = WordTheme.encode($0) }
+                    )
+                    Picker("Pattern", selection: $pattern) {
+                        ForEach(WordPattern.allCases) { Text($0.label).tag($0) }
                     }
-                    Picker("Separator", selection: $separator) {
-                        ForEach(WordSeparator.allCases) { Text($0.label).tag($0) }
-                    }
+                    Toggle("Alliterate", isOn: $alliterate)
+                    MultiSelectMenu(
+                        title: "Separator", plural: "separators", label: \.label,
+                        selection: Binding { separators } set: { separatorsRaw = WordSeparator.encode($0) }
+                    )
                     .disabled(lettersAndDigitsOnly)
-                    Picker("Capitalization", selection: $wordCase) {
-                        ForEach(WordCase.allCases) { Text($0.label).tag($0) }
-                    }
+                    MultiSelectMenu(
+                        title: "Capitalization", plural: "styles", label: \.label,
+                        selection: Binding { wordCases } set: { wordCasesRaw = WordCase.encode($0) }
+                    )
                 }
 
                 Section("Numbers") {
@@ -186,6 +232,39 @@ struct ContentView: View {
         NSPasteboard.general.setString(name, forType: .string)
         #endif
         withAnimation { copied = name }
+    }
+}
+
+/// A row that opens a menu of checkmarks. At least one choice always stays selected.
+private struct MultiSelectMenu<Value: SetStorable & Identifiable>: View {
+    let title: String
+    /// Used in the row's summary when several are selected, like "3 themes".
+    let plural: String
+    let label: (Value) -> String
+    @Binding var selection: Set<Value>
+
+    private var summary: String {
+        selection.count == 1 ? label(selection.first!) : "\(selection.count) \(plural)"
+    }
+
+    var body: some View {
+        Menu {
+            ForEach(Array(Value.allCases)) { value in
+                Toggle(label(value), isOn: Binding {
+                    selection.contains(value)
+                } set: { isOn in
+                    var updated = selection
+                    if isOn { updated.insert(value) } else { updated.remove(value) }
+                    if !updated.isEmpty { selection = updated }
+                })
+                .disabled(selection == [value])
+            }
+        } label: {
+            LabeledContent(title, value: summary)
+        }
+        #if os(iOS)
+        .menuActionDismissBehavior(.disabled)
+        #endif
     }
 }
 
