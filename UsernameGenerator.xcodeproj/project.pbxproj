@@ -11,6 +11,7 @@
 		702A6EC430959A3A005EAD22 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 702A6EC330959A3A005EAD22 /* SwiftUI.framework */; };
 		702A6ED130959A3B005EAD22 /* UsernameWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 702A6EBF30959A3A005EAD22 /* UsernameWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		70A320CC30963CF900D69CB7 /* UsernameSafariExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 70A320B430963CF900D69CB7 /* UsernameSafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		70C1000B3100A001005EAD22 /* UsernameKeyboard.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 70C100013100A001005EAD22 /* UsernameKeyboard.appex */; platformFilters = (ios, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,6 +43,13 @@
 			remoteGlobalIDString = 70A320B330963CF900D69CB7;
 			remoteInfo = UsernameSafariExtension;
 		};
+		70C100093100A001005EAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 702A678430958EB6005EAD22 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 70C100083100A001005EAD22;
+			remoteInfo = UsernameKeyboard;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -52,6 +60,7 @@
 			files = (
 				70A320CC30963CF900D69CB7 /* UsernameSafariExtension.appex in Embed Foundation Extensions */,
 				702A6ED130959A3B005EAD22 /* UsernameWidgetExtension.appex in Embed Foundation Extensions */,
+				70C1000B3100A001005EAD22 /* UsernameKeyboard.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 		};
@@ -65,6 +74,7 @@
 		702A6EC130959A3A005EAD22 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = /System/Library/Frameworks/WidgetKit.framework; sourceTree = "<absolute>"; };
 		702A6EC330959A3A005EAD22 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = /System/Library/Frameworks/SwiftUI.framework; sourceTree = "<absolute>"; };
 		70A320B430963CF900D69CB7 /* UsernameSafariExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = UsernameSafariExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		70C100013100A001005EAD22 /* UsernameKeyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = UsernameKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -102,6 +112,24 @@
 			);
 			target = 70A320B330963CF900D69CB7 /* UsernameSafariExtension */;
 		};
+		70C100033100A001005EAD22 /* Exceptions for "UsernameKeyboard" folder in "UsernameKeyboard" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 70C100083100A001005EAD22 /* UsernameKeyboard */;
+		};
+		70C100043100A001005EAD22 /* Exceptions for "UsernameGenerator" folder in "UsernameKeyboard" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Assets.xcassets,
+				ContentView.swift,
+				CopyUsernameIntent.swift,
+				GenerateUsernameIntent.swift,
+				UsernameGeneratorApp.swift,
+			);
+			target = 70C100083100A001005EAD22 /* UsernameKeyboard */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -110,6 +138,7 @@
 			exceptions = (
 				702A6EDA30959A3B005EAD22 /* Exceptions for "UsernameGenerator" folder in "UsernameWidgetExtension" target */,
 				70A320E030963CF900D69CB7 /* Exceptions for "UsernameGenerator" folder in "UsernameSafariExtension" target */,
+				70C100043100A001005EAD22 /* Exceptions for "UsernameGenerator" folder in "UsernameKeyboard" target */,
 			);
 			path = UsernameGenerator;
 			sourceTree = "<group>";
@@ -144,6 +173,14 @@
 			path = UsernameSafariExtension;
 			sourceTree = "<group>";
 		};
+		70C100023100A001005EAD22 /* UsernameKeyboard */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				70C100033100A001005EAD22 /* Exceptions for "UsernameKeyboard" folder in "UsernameKeyboard" target */,
+			);
+			path = UsernameKeyboard;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,6 +211,11 @@
 			files = (
 			);
 		};
+		70C100063100A001005EAD22 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -185,6 +227,7 @@
 				702A67A830958EB6005EAD22 /* UsernameGeneratorUITests */,
 				702A6EC530959A3A005EAD22 /* UsernameWidget */,
 				70A320B530963CF900D69CB7 /* UsernameSafariExtension */,
+				70C100023100A001005EAD22 /* UsernameKeyboard */,
 				702A6EC030959A3A005EAD22 /* Frameworks */,
 				702A678D30958EB6005EAD22 /* Products */,
 			);
@@ -198,6 +241,7 @@
 				702A67A530958EB6005EAD22 /* UsernameGeneratorUITests.xctest */,
 				702A6EBF30959A3A005EAD22 /* UsernameWidgetExtension.appex */,
 				70A320B430963CF900D69CB7 /* UsernameSafariExtension.appex */,
+				70C100013100A001005EAD22 /* UsernameKeyboard.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -228,6 +272,7 @@
 			dependencies = (
 				702A6ED030959A3B005EAD22 /* PBXTargetDependency */,
 				70A320CB30963CF900D69CB7 /* PBXTargetDependency */,
+				70C1000A3100A001005EAD22 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				702A678E30958EB6005EAD22 /* UsernameGenerator */,
@@ -317,6 +362,25 @@
 			productReference = 70A320B430963CF900D69CB7 /* UsernameSafariExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		70C100083100A001005EAD22 /* UsernameKeyboard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 70C1000C3100A001005EAD22 /* Build configuration list for PBXNativeTarget "UsernameKeyboard" */;
+			buildPhases = (
+				70C100053100A001005EAD22 /* Sources */,
+				70C100063100A001005EAD22 /* Frameworks */,
+				70C100073100A001005EAD22 /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				702A678E30958EB6005EAD22 /* UsernameGenerator */,
+				70C100023100A001005EAD22 /* UsernameKeyboard */,
+			);
+			name = UsernameKeyboard;
+			productName = UsernameKeyboard;
+			productReference = 70C100013100A001005EAD22 /* UsernameKeyboard.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -344,6 +408,9 @@
 					70A320B330963CF900D69CB7 = {
 						CreatedOnToolsVersion = 27.1;
 					};
+					70C100083100A001005EAD22 = {
+						CreatedOnToolsVersion = 27.1;
+					};
 				};
 			};
 			buildConfigurationList = 702A678730958EB6005EAD22 /* Build configuration list for PBXProject "UsernameGenerator" */;
@@ -365,6 +432,7 @@
 				702A67A430958EB6005EAD22 /* UsernameGeneratorUITests */,
 				702A6EBE30959A3A005EAD22 /* UsernameWidgetExtension */,
 				70A320B330963CF900D69CB7 /* UsernameSafariExtension */,
+				70C100083100A001005EAD22 /* UsernameKeyboard */,
 			);
 		};
 /* End PBXProject section */
@@ -391,6 +459,11 @@
 			);
 		};
 		70A320B230963CF900D69CB7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		70C100073100A001005EAD22 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
 			);
@@ -423,6 +496,11 @@
 			files = (
 			);
 		};
+		70C100053100A001005EAD22 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -445,6 +523,14 @@
 			isa = PBXTargetDependency;
 			target = 70A320B330963CF900D69CB7 /* UsernameSafariExtension */;
 			targetProxy = 70A320CA30963CF900D69CB7 /* PBXContainerItemProxy */;
+		};
+		70C1000A3100A001005EAD22 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilters = (
+				ios,
+			);
+			target = 70C100083100A001005EAD22 /* UsernameKeyboard */;
+			targetProxy = 70C100093100A001005EAD22 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -940,6 +1026,68 @@
 			};
 			name = Release;
 		};
+		70C1000D3100A001005EAD22 /* Debug configuration for PBXNativeTarget "UsernameKeyboard" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = UsernameKeyboard/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Username Keyboard";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.colebraswell.UsernameGenerator.UsernameKeyboard;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		70C1000E3100A001005EAD22 /* Release configuration for PBXNativeTarget "UsernameKeyboard" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = UsernameKeyboard/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Username Keyboard";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.colebraswell.UsernameGenerator.UsernameKeyboard;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -988,6 +1136,14 @@
 			buildConfigurations = (
 				70A320CD30963CF900D69CB7 /* Debug configuration for PBXNativeTarget "UsernameSafariExtension" */,
 				70A320CE30963CF900D69CB7 /* Release configuration for PBXNativeTarget "UsernameSafariExtension" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		70C1000C3100A001005EAD22 /* Build configuration list for PBXNativeTarget "UsernameKeyboard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				70C1000D3100A001005EAD22 /* Debug configuration for PBXNativeTarget "UsernameKeyboard" */,
+				70C1000E3100A001005EAD22 /* Release configuration for PBXNativeTarget "UsernameKeyboard" */,
 			);
 			defaultConfigurationName = Release;
 		};

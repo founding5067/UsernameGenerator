@@ -291,6 +291,17 @@ struct ContentView: View {
                     Text("The Safari extension shows usernames from here and fills the field you're typing in. It can only see a page after you click it.")
                 }
 
+                // The keyboard is only built for iPhone and iPad.
+                #if os(iOS)
+                Section {
+                    Text("Turn it on in Settings → General → Keyboard → Keyboards → Add New Keyboard → Username Keyboard.")
+                } header: {
+                    Text("Keyboard")
+                } footer: {
+                    Text("The keyboard types a username into any app. It never asks for Full Access, so it can't use the network.")
+                }
+                #endif
+
                 Section {
                     Label("Runs entirely on this device. No accounts, no ads, no tracking, no network.",
                           systemImage: "lock.shield")
