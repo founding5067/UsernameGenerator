@@ -316,4 +316,223 @@ struct UsernameGeneratorTests {
         let none = UsernameGenerator(adjectives: ["big"], nouns: ["cow"])
         #expect(none.combinationCount(options: options) == 1)
     }
+
+    // MARK: - Determinism
+
+    @Test func sameSeedGivesSameUsernames() {
+        let g = UsernameGenerator()
+        let options = UsernameOptions(wordCount: 3, separators: [.hyphen, .period], wordCases: [.lower, .title, .camel])
+        var a = SplitMix64(seed: 42)
+        var b = SplitMix64(seed: 42)
+        for _ in 0..<20 {
+            #expect(g.generate(options: options, using: &a) == g.generate(options: options, using: &b))
+        }
+        var c = SplitMix64(seed: 1)
+        let varied = Set((0..<20).map { _ in g.generate(options: options, using: &c) })
+        #expect(varied.count > 1)
+    }
+
+    // MARK: - Generator paths
+
+    @Test func adjectiveNounRespectsLengthLimit() {
+        let g = UsernameGenerator(adjectives: ["big", "bad", "cool"], nouns: ["cat", "cow", "dog"])
+        let options = UsernameOptions(wordCount: 2, separators: [.hyphen], wordCases: [.lower], includeNumber: false,
+                                      limitLength: true, maxLength: 8, pattern: .adjectiveNoun)
+        for _ in 0..<50 {
+            let parts = g.generate(options: options).split(separator: "-").map(String.init)
+            #expect(parts.count == 2)
+            // "cool" is too long for the budget, so only short adjectives remain.
+            #expect(["big", "bad"].contains(parts[0]))
+            #expect(["cat", "cow", "dog"].contains(parts[1]))
+        }
+    }
+
+    @Test func adjectiveNounAlliterates() {
+        let options = UsernameOptions(wordCount: 3, separators: [.hyphen], wordCases: [.lower], includeNumber: false,
+                                      pattern: .adjectiveNoun, alliterate: true)
+        for _ in 0..<50 {
+            let name = UsernameGenerator().generate(options: options)
+            #expect(Set(name.split(separator: "-").compactMap(\.first)).count == 1, "\(name)")
+        }
+    }
+
+    @Test func alliterationFallsBackWhenNoLetterIsShared() {
+        let g = UsernameGenerator(adjectives: ["big"], nouns: ["cow"])
+        let options = UsernameOptions(wordCount: 2, separators: [.hyphen], wordCases: [.lower], includeNumber: false,
+                                      pattern: .adjectiveNoun, alliterate: true)
+        #expect(g.generate(options: options) == "big-cow")
+    }
+
+    @Test func blockedWordsStayOutUnlessAllowed() {
+        let off = UsernameOptions(wordCount: 1, wordCases: [.lower], includeNumber: false)
+        for _ in 0..<300 {
+            #expect(!WordList.blocked.contains(UsernameGenerator().generate(options: off)))
+        }
+        var on = off
+        on.includeBlockedWords = true
+        let unfiltered = Set(WordList.effUnfiltered)
+        for _ in 0..<100 {
+            #expect(unfiltered.contains(UsernameGenerator().generate(options: on)))
+        }
+    }
+
+    @Test func emptySeparatorSetFallsBackToNone() {
+        #expect(UsernameOptions(separators: []).effectiveSeparators == [.none])
+    }
+
+    @Test func emptyWordPoolGivesNothing() {
+        let g = UsernameGenerator(words: [])
+        #expect(g.generate(options: UsernameOptions()) == "")
+        #expect(g.combinationCount(options: UsernameOptions()) == 0)
+    }
+
+    @Test func impossibleLengthLimitUsesShortestWord() {
+        let g = UsernameGenerator(words: ["abcdefghij", "abcdefghijk"])
+        let options = UsernameOptions(wordCount: 2, separators: [.hyphen], wordCases: [.lower], includeNumber: true,
+                                      digitCount: 4, limitLength: true, maxLength: 6)
+        // Digits go first, then words, then it settles for the shortest word.
+        #expect(g.generate(options: options) == "abcdefghij")
+    }
+
+    @Test func batchWithMixedSeparators() {
+        let g = UsernameGenerator()
+        #expect(g.generateBatch(options: UsernameOptions(), count: 0).isEmpty)
+
+        let options = UsernameOptions(wordCount: 2, separators: [.hyphen, .underscore], includeNumber: true,
+                                      digitCount: 2, limitLength: true, maxLength: 12)
+        let batch = g.generateBatch(options: options, count: 200)
+        #expect(batch.count == 200)
+        var seen = Set<Character>()
+        for name in batch {
+            #expect(name.count <= 12, "\(name)")
+            let separators = name.filter { $0 == "-" || $0 == "_" }
+            #expect(Set(separators).count == 1, "\(name)")
+            seen.formUnion(separators)
+        }
+        #expect(seen == ["-", "_"])
+    }
+
+    // MARK: - WordCase
+
+    @Test func alternatingOnlyCountsLettersAndContinuesAcrossWords() {
+        #expect(WordCase.alternating.apply(to: ["ab1c"]) == ["aB1c"])
+        #expect(WordCase.alternating.apply(to: ["ab", "cd"]) == ["aB", "cD"])
+    }
+
+    @Test func caseStylesNormalizeInput() {
+        #expect(WordCase.title.apply(to: ["bRAVE"]) == ["Brave"])
+        #expect(WordCase.camel.apply(to: ["BRAVE"]) == ["brave"])
+        #expect(WordCase.sentence.apply(to: ["bRAVE"]) == ["Brave"])
+    }
+
+    // MARK: - Combination counts
+
+    @Test func lengthLimitCountsPerSeparator() {
+        // At 8 characters a hyphen leaves 3 per word, so "cdef" no longer fits; with no separator it does.
+        let g = UsernameGenerator(words: ["ab", "cdef"])
+        func count(_ separators: Set<WordSeparator>) -> Double {
+            g.combinationCount(options: UsernameOptions(wordCount: 2, separators: separators, wordCases: [.lower],
+                                                        includeNumber: false, limitLength: true, maxLength: 8))
+        }
+        #expect(count([.hyphen]) == 1)
+        #expect(count([.none]) == 4)
+        #expect(count([.hyphen, .none]) == 5)
+    }
+
+    @Test func alliterationCountsEachWordOnce() {
+        let g = UsernameGenerator(words: ["ant", "apple", "bee"])
+        let options = UsernameOptions(wordCount: 1, wordCases: [.lower], includeNumber: false, alliterate: true)
+        #expect(g.combinationCount(options: options) == 3)
+    }
+
+    // MARK: - Set encoding
+
+    @Test func setEncodingFollowsDeclarationOrderAndDropsUnknowns() {
+        #expect(WordTheme.encode([.music, .animals]) == "animals,music")
+        #expect(WordCase.encode([.upper, .lower]) == "lower,upper")
+        #expect(WordTheme.decode("animals,bogus,music") == [.animals, .music])
+    }
+
+    // MARK: - SharedSettings
+
+    private func withDefaults(_ body: (UserDefaults) -> Void) {
+        let name = "test-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: name)!
+        defer { defaults.removePersistentDomain(forName: name) }
+        body(defaults)
+    }
+
+    @Test func emptySettingsLoadDefaults() {
+        withDefaults { d in
+            #expect(SharedSettings.loadOptions(from: d) == UsernameOptions())
+        }
+    }
+
+    @Test func savedSettingsLoad() {
+        withDefaults { d in
+            d.set(4, forKey: "wordCount")
+            d.set(WordSeparator.encode([.hyphen, .period]), forKey: "separators")
+            d.set(WordCase.encode([.camel]), forKey: "wordCases")
+            d.set(false, forKey: "includeNumber")
+            d.set(2, forKey: "digitCount")
+            d.set(WordTheme.encode([.animals, .space]), forKey: "themes")
+            d.set(true, forKey: "limitLength")
+            d.set(20, forKey: "maxLength")
+            d.set(true, forKey: "lettersAndDigitsOnly")
+            d.set(true, forKey: "includeBlockedWords")
+            d.set("adjectiveNoun", forKey: "pattern")
+            d.set(true, forKey: "alliterate")
+
+            let expected = UsernameOptions(
+                wordCount: 4, separators: [.hyphen, .period], wordCases: [.camel], includeNumber: false, digitCount: 2,
+                themes: [.animals, .space], limitLength: true, maxLength: 20, lettersAndDigitsOnly: true,
+                includeBlockedWords: true, pattern: .adjectiveNoun, alliterate: true
+            )
+            #expect(SharedSettings.loadOptions(from: d) == expected)
+        }
+    }
+
+    @Test func legacySingleChoicesAreReadAndMigrated() {
+        withDefaults { d in
+            d.set("", forKey: "separator")
+            d.set("camel", forKey: "wordCase")
+            d.set("space", forKey: "theme")
+
+            let loaded = SharedSettings.loadOptions(from: d)
+            #expect(loaded.separators == [.none])
+            #expect(loaded.wordCases == [.camel])
+            #expect(loaded.themes == [.space])
+
+            SharedSettings.migrateLegacyKeys(in: d)
+            #expect(d.string(forKey: "separators") == "")
+            #expect(d.string(forKey: "wordCases") == "camel")
+            #expect(d.string(forKey: "themes") == "space")
+            #expect(SharedSettings.loadOptions(from: d) == loaded)
+        }
+    }
+
+    @Test func migrationKeepsNewerChoices() {
+        withDefaults { d in
+            d.set("-", forKey: "separators")
+            d.set("_", forKey: "separator")
+            SharedSettings.migrateLegacyKeys(in: d)
+            #expect(d.string(forKey: "separators") == "-")
+            #expect(SharedSettings.loadOptions(from: d).separators == [.hyphen])
+        }
+    }
+}
+
+/// A small seeded generator, so tests can repeat the same random choices.
+nonisolated struct SplitMix64: RandomNumberGenerator {
+    private var state: UInt64
+
+    init(seed: UInt64) { state = seed }
+
+    mutating func next() -> UInt64 {
+        state &+= 0x9E37_79B9_7F4A_7C15
+        var z = state
+        z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
+        z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
+        return z ^ (z >> 31)
+    }
 }

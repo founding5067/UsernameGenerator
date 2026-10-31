@@ -12,11 +12,23 @@ nonisolated enum SharedSettings {
     static let appGroupID = "group.com.colebraswell.UsernameGenerator"
     static let widgetKind = "UsernameWidget"
 
-    static let defaults = UserDefaults(suiteName: appGroupID) ?? .standard
+    /// UI tests launch the app with this argument to get a clean, separate store.
+    static let uiTestingArgument = "-uiTesting"
+
+    static let defaults: UserDefaults = {
+        if ProcessInfo.processInfo.arguments.contains(uiTestingArgument) {
+            let suite = "UsernameGenerator.UITests"
+            UserDefaults.standard.removePersistentDomain(forName: suite)
+            if let defaults = UserDefaults(suiteName: suite) {
+                defaults.removePersistentDomain(forName: suite)
+                return defaults
+            }
+        }
+        return UserDefaults(suiteName: appGroupID) ?? .standard
+    }()
 
     /// Separator, capitalization and theme were single choices before they became sets. Carries the old choice over.
-    static func migrateLegacyKeys() {
-        let d = defaults
+    static func migrateLegacyKeys(in d: UserDefaults = defaults) {
         if d.string(forKey: "separators") == nil, let v = d.string(forKey: "separator").flatMap(WordSeparator.init(rawValue:)) {
             d.set(WordSeparator.encode([v]), forKey: "separators")
         }
@@ -29,8 +41,7 @@ nonisolated enum SharedSettings {
     }
 
     /// Reads the options saved by the app's `@AppStorage` keys, falling back to the defaults.
-    static func loadOptions() -> UsernameOptions {
-        let d = defaults
+    static func loadOptions(from d: UserDefaults = defaults) -> UsernameOptions {
         var options = UsernameOptions()
         if let v = d.object(forKey: "wordCount") as? Int { options.wordCount = v }
         if let v = d.string(forKey: "separators") {

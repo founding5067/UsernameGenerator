@@ -15,6 +15,8 @@ struct UsernameGeneratorApp: App {
         }
         #if os(macOS)
         .windowResizability(.contentSize)
+        #elseif os(visionOS)
+        .defaultSize(width: 560, height: 820)
         #endif
     }
 }

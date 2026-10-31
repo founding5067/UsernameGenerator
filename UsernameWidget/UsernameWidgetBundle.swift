@@ -12,6 +12,8 @@ import SwiftUI
 struct UsernameWidgetBundle: WidgetBundle {
     var body: some Widget {
         UsernameWidget()
+        #if !os(visionOS)
         CopyUsernameControl()
+        #endif
     }
 }

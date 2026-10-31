@@ -112,7 +112,9 @@ struct ContentView: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(name)
+                        .accessibilityValue(copied == name ? "Copied" : "")
                         .accessibilityHint("Copies to the clipboard")
+                        .accessibilityIdentifier("username")
                     }
 
                     Button {
@@ -124,19 +126,20 @@ struct ContentView: View {
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .keyboardShortcut("r", modifiers: .command)
+                    .accessibilityIdentifier("generate")
                 } header: {
                     Text("Tap a username to copy it")
                 } footer: {
                     Label(strengthText, systemImage: "gauge.with.dots.needle.50percent")
                         .foregroundStyle(strengthColor)
+                        .accessibilityIdentifier("strength")
                 }
 
                 Section("Words") {
-                    Stepper(value: $wordCount, in: UsernameOptions.wordCountRange) {
-                        LabeledContent("Number of words", value: "\(wordCount)")
-                    }
+                    NumberStepper(title: "Number of words", value: $wordCount,
+                                  range: UsernameOptions.wordCountRange, id: "wordCount")
                     MultiSelectMenu(
-                        title: "Theme", plural: "themes", label: \.label,
+                        id: "themeMenu", title: "Theme", plural: "themes", label: \.label,
                         selection: Binding { themes } set: { themesRaw = WordTheme.encode($0) }
                     )
                     // Like Alliterate, a pattern needs at least two words. The saved choice is kept.
@@ -145,41 +148,45 @@ struct ContentView: View {
                         Picker("Pattern", selection: $pattern) {
                             ForEach(WordPattern.allCases) { Text($0.label).tag($0) }
                         }
+                        .accessibilityIdentifier("pattern")
                     } else {
                         LabeledContent("Pattern", value: WordPattern.random.label)
                             .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("patternFixed")
                     }
                     // One word has nothing to match. The saved choice is kept for when there are more.
                     Toggle("Alliterate", isOn: wordCount > 1 ? $alliterate : .constant(false))
                         .disabled(wordCount == 1)
+                        .accessibilityIdentifier("alliterate")
                     MultiSelectMenu(
-                        title: "Separator", plural: "separators", label: \.label,
+                        id: "separatorMenu", title: "Separator", plural: "separators", label: \.label,
                         selection: Binding { separators } set: { separatorsRaw = WordSeparator.encode($0) }
                     )
                     .disabled(lettersAndDigitsOnly)
                     MultiSelectMenu(
-                        title: "Capitalization", plural: "styles", label: \.label,
+                        id: "capitalizationMenu", title: "Capitalization", plural: "styles", label: \.label,
                         selection: Binding { wordCases } set: { wordCasesRaw = WordCase.encode($0) }
                     )
                 }
 
                 Section("Numbers") {
                     Toggle("Add numbers", isOn: $includeNumber)
+                        .accessibilityIdentifier("addNumbers")
                     if includeNumber {
-                        Stepper(value: $digitCount, in: UsernameOptions.digitCountRange) {
-                            LabeledContent("Digits", value: "\(digitCount)")
-                        }
+                        NumberStepper(title: "Digits", value: $digitCount,
+                                      range: UsernameOptions.digitCountRange, id: "digitCount")
                     }
                 }
 
                 Section {
                     Toggle("Limit length", isOn: $limitLength)
+                        .accessibilityIdentifier("limitLength")
                     if limitLength {
-                        Stepper(value: $maxLength, in: UsernameOptions.maxLengthRange) {
-                            LabeledContent("Maximum characters", value: "\(maxLength)")
-                        }
+                        NumberStepper(title: "Maximum characters", value: $maxLength,
+                                      range: UsernameOptions.maxLengthRange, id: "maxLength")
                     }
                     Toggle("Letters and numbers only", isOn: $lettersAndDigitsOnly)
+                        .accessibilityIdentifier("lettersOnly")
                 } header: {
                     Text("Site rules")
                 } footer: {
@@ -275,6 +282,7 @@ struct ContentView: View {
 
 /// A row that opens a menu of checkmarks. At least one choice always stays selected.
 private struct MultiSelectMenu<Value: SetStorable & Identifiable>: View {
+    let id: String
     let title: String
     /// Used in the row's summary when several are selected, like "3 themes".
     let plural: String
@@ -286,23 +294,44 @@ private struct MultiSelectMenu<Value: SetStorable & Identifiable>: View {
     }
 
     var body: some View {
-        Menu {
-            ForEach(Array(Value.allCases)) { value in
-                Toggle(label(value), isOn: Binding {
-                    selection.contains(value)
-                } set: { isOn in
-                    var updated = selection
-                    if isOn { updated.insert(value) } else { updated.remove(value) }
-                    if !updated.isEmpty { selection = updated }
-                })
-                .disabled(selection == [value])
+        LabeledContent(title) {
+            Menu {
+                ForEach(Array(Value.allCases)) { value in
+                    Toggle(label(value), isOn: Binding {
+                        selection.contains(value)
+                    } set: { isOn in
+                        var updated = selection
+                        if isOn { updated.insert(value) } else { updated.remove(value) }
+                        if !updated.isEmpty { selection = updated }
+                    })
+                    .disabled(selection == [value])
+                }
+            } label: {
+                Text(summary)
             }
-        } label: {
-            LabeledContent(title, value: summary)
+            .fixedSize()
+            .accessibilityIdentifier(id)
+            #if os(iOS) || os(visionOS)
+            .menuActionDismissBehavior(.disabled)
+            #endif
         }
-        #if os(iOS)
-        .menuActionDismissBehavior(.disabled)
-        #endif
+    }
+}
+
+/// A row with the title on the left and the value beside the stepper arrows on the right.
+private struct NumberStepper: View {
+    let title: String
+    @Binding var value: Int
+    let range: ClosedRange<Int>
+    let id: String
+
+    var body: some View {
+        LabeledContent(title) {
+            Stepper(value: $value, in: range) {
+                Text("\(value)").monospacedDigit()
+            }
+            .accessibilityIdentifier(id)
+        }
     }
 }
 

@@ -9,6 +9,8 @@ import AppIntents
 import SwiftUI
 import WidgetKit
 
+// Control Center controls don't exist on visionOS.
+#if !os(visionOS)
 struct CopyUsernameControl: ControlWidget {
     static let kind = "CopyUsernameControl"
 
@@ -22,3 +24,4 @@ struct CopyUsernameControl: ControlWidget {
         .description("Copies a new random username.")
     }
 }
+#endif

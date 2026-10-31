@@ -35,7 +35,9 @@ func rounded(_ x: CGFloat, _ y: CGFloat, _ w: CGFloat, _ h: CGFloat, _ r: CGFloa
     NSBezierPath(roundedRect: NSRect(x: x, y: y, width: w, height: h), xRadius: r, yRadius: r)
 }
 
-func render(px: Int, variant: String, mac: Bool) -> Data {
+enum Layer { case all, back, front }
+
+func render(px: Int, variant: String, mac: Bool, layer: Layer = .all) -> Data {
     let p = palette(variant)
     let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: px, pixelsHigh: px, bitsPerSample: 8,
                                samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
@@ -54,7 +56,13 @@ func render(px: Int, variant: String, mac: Bool) -> Data {
         rounded(0, 0, 1024, 1024, 230).addClip()
     }
 
-    p.bgBottom.setFill(); NSRect(x: 0, y: 0, width: 1024, height: 1024).fill()
+    if layer != .front { p.bgBottom.setFill(); NSRect(x: 0, y: 0, width: 1024, height: 1024).fill() }
+    if layer == .back { NSGraphicsContext.restoreGraphicsState(); return rep.representation(using: .png, properties: [:])! }
+
+    // Center the artwork's bounding box (≈ x 183–766, y 56–994) on the canvas and shrink it a touch for margin
+    cg.translateBy(x: 512, y: 512)
+    cg.scaleBy(x: 0.9, y: 0.9)
+    cg.translateBy(x: -474, y: -525)
 
     // Generator
     cg.saveGState()
@@ -140,3 +148,6 @@ func write(_ name: String, _ data: Data) { try! data.write(to: out.appendingPath
 for v in ["light", "dark", "tinted"] { write("ios-\(v).png", render(px: 1024, variant: v, mac: false)) }
 for px in [16, 32, 64, 128, 256, 512, 1024] { write("mac-\(px).png", render(px: px, variant: "light", mac: true)) }
 for px in [48, 64, 96, 128, 256, 512] { write("safari-\(px).png", render(px: px, variant: "light", mac: true)) }
+// visionOS stacks layers; the system masks the result to a circle.
+write("vision-back.png", render(px: 1024, variant: "light", mac: false, layer: .back))
+write("vision-front.png", render(px: 1024, variant: "light", mac: false, layer: .front))
