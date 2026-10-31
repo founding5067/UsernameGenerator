@@ -115,6 +115,7 @@ struct ContentView: View {
                     if let keptWord {
                         HStack {
                             Label("Keeping “\(keptWord.word)”", systemImage: "pin.fill")
+                                .accessibilityIdentifier("keptWord")
                             Spacer()
                             Button {
                                 self.keptWord = nil
@@ -126,7 +127,6 @@ struct ContentView: View {
                             .accessibilityLabel("Stop keeping “\(keptWord.word)”")
                             .accessibilityIdentifier("clearKept")
                         }
-                        .accessibilityIdentifier("keptWord")
                     }
 
                     ForEach(usernames, id: \.text) { generated in
