@@ -4,7 +4,7 @@ A small, private username generator for iPhone, iPad, Mac and Apple Vision Pro.
 
 Pick how many words, a separator, the capitalization, and whether to add digits. You get five options at once, like `QuietOtter4821` or `brave-falcon-07`. Tap one to copy it.
 
-- **Themes:** animals, nature, space or food vocabularies.
+- **Themes:** animals, nature, space, food, ocean, weather, music, colors, fantasy, sports, spooky, tech, mythology or gems vocabularies.
 - **Patterns:** *Adjective + noun* gives names like `BraveBadger`, and *Alliterate* makes every word start with the same letter.
 - **Strength meter:** shows how many usernames your current settings can produce.
 - **Control Center:** add the *New Username* control to copy a fresh username in one tap.

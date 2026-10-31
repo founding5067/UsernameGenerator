@@ -50,6 +50,10 @@ nonisolated enum WordTheme: String, CaseIterable, Identifiable, Sendable, SetSto
     case colors
     case fantasy
     case sports
+    case spooky
+    case tech
+    case mythology
+    case gems
 
     var id: String { rawValue }
 
@@ -66,6 +70,10 @@ nonisolated enum WordTheme: String, CaseIterable, Identifiable, Sendable, SetSto
         case .colors: "Colors"
         case .fantasy: "Fantasy"
         case .sports: "Sports"
+        case .spooky: "Spooky"
+        case .tech: "Tech"
+        case .mythology: "Mythology"
+        case .gems: "Gems"
         }
     }
 

@@ -20,7 +20,7 @@ extension WordTheme: AppEnum {
     nonisolated static var caseDisplayRepresentations: [WordTheme: DisplayRepresentation] {
         [.any: "Any", .animals: "Animals", .nature: "Nature", .space: "Space", .food: "Food",
          .ocean: "Ocean", .weather: "Weather", .music: "Music", .colors: "Colors", .fantasy: "Fantasy",
-         .sports: "Sports"]
+         .sports: "Sports", .spooky: "Spooky", .tech: "Tech", .mythology: "Mythology", .gems: "Gems"]
     }
 }
 
