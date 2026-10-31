@@ -50,8 +50,9 @@ struct ContentView: View {
             maxLength: maxLength,
             lettersAndDigitsOnly: lettersAndDigitsOnly,
             includeBlockedWords: includeBlockedWords,
-            pattern: pattern,
-            alliterate: alliterate
+            // With one word there is nothing to pattern or alliterate. The saved choices are kept.
+            pattern: wordCount > 1 ? pattern : .random,
+            alliterate: wordCount > 1 && alliterate
         )
     }
 
@@ -135,10 +136,19 @@ struct ContentView: View {
                         title: "Theme", plural: "themes", label: \.label,
                         selection: Binding { themes } set: { themesRaw = WordTheme.encode($0) }
                     )
-                    Picker("Pattern", selection: $pattern) {
-                        ForEach(WordPattern.allCases) { Text($0.label).tag($0) }
+                    // Like Alliterate, a pattern needs at least two words. The saved choice is kept.
+                    // A disabled Picker can still open its menu, so show plain text instead.
+                    if wordCount > 1 {
+                        Picker("Pattern", selection: $pattern) {
+                            ForEach(WordPattern.allCases) { Text($0.label).tag($0) }
+                        }
+                    } else {
+                        LabeledContent("Pattern", value: WordPattern.random.label)
+                            .foregroundStyle(.secondary)
                     }
-                    Toggle("Alliterate", isOn: $alliterate)
+                    // One word has nothing to match. The saved choice is kept for when there are more.
+                    Toggle("Alliterate", isOn: wordCount > 1 ? $alliterate : .constant(false))
+                        .disabled(wordCount == 1)
                     MultiSelectMenu(
                         title: "Separator", plural: "separators", label: \.label,
                         selection: Binding { separators } set: { separatorsRaw = WordSeparator.encode($0) }
