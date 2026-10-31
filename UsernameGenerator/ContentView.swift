@@ -216,12 +216,19 @@ struct ContentView: View {
                     Text("The Safari extension shows usernames from here and fills the field you're typing in. It can only see a page after you click it.")
                 }
 
-                Section("About") {
+                Section {
                     Label("Runs entirely on this device. No accounts, no ads, no tracking, no network.",
                           systemImage: "lock.shield")
+                    Link(destination: URL(string: "https://tangled.org/colebraswell.com/UsernameGenerator")!) {
+                        Label("View the Source Code", systemImage: "chevron.left.forwardslash.chevron.right")
+                    }
                     Text("Words from the EFF Large Wordlist by the Electronic Frontier Foundation, used under CC BY 4.0, with some words filtered out.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
+                } header: {
+                    Text("About")
+                } footer: {
+                    Text("The whole app is open source, so you can check these privacy claims yourself.")
                 }
             }
             .formStyle(.grouped)
