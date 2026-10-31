@@ -87,6 +87,50 @@ nonisolated enum WordCase: String, CaseIterable, Identifiable, Sendable, SetStor
     }
 }
 
+/// Respellings applied to the vocabulary itself, so length limits and counts see the final words.
+nonisolated enum WordTwist: String, CaseIterable, Identifiable, Sendable, SetStorable {
+    case plain
+    case leet
+    case noVowels
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .plain: "Plain"
+        case .leet: "Leetspeak (l33t)"
+        case .noVowels: "No vowels (qt)"
+        }
+    }
+
+    func apply(to word: String) -> String {
+        switch self {
+        case .plain:
+            return word
+        case .leet:
+            return String(word.map { character -> Character in
+                switch character {
+                case "a", "A": "4"
+                case "e", "E": "3"
+                case "i", "I": "1"
+                case "o", "O": "0"
+                default: character
+                }
+            })
+        case .noVowels:
+            // The first letter stays so the word is still recognizable and alliteration still works.
+            return String(word.prefix(1)) + word.dropFirst().filter { !"aeiouAEIOU".contains($0) }
+        }
+    }
+
+    /// The whole pool respelled, without repeats (several words can collapse to one).
+    func apply(to pool: [String]) -> [String] {
+        guard self != .plain else { return pool }
+        var seen = Set<String>()
+        return pool.map { apply(to: $0) }.filter { seen.insert($0).inserted }
+    }
+}
+
 nonisolated enum WordPattern: String, CaseIterable, Identifiable, Sendable {
     case random
     case adjectiveNoun
@@ -122,6 +166,8 @@ nonisolated struct UsernameOptions: Equatable {
     var lettersAndDigitsOnly = false
     /// Lets words from blocked_words.txt back into the pool.
     var includeBlockedWords = false
+    /// Each username uses one of these, chosen at random.
+    var twists: Set<WordTwist> = [.plain]
     /// Adjectives first and a noun last, like BraveBadger.
     var pattern = WordPattern.random
     /// Every word starts with the same letter, like BraveBadger.
@@ -136,6 +182,11 @@ nonisolated struct UsernameOptions: Equatable {
     var effectiveCases: [WordCase] {
         let cases = WordCase.allCases.filter(wordCases.contains)
         return cases.isEmpty ? [.title] : cases
+    }
+
+    var effectiveTwists: [WordTwist] {
+        let twists = WordTwist.allCases.filter(twists.contains)
+        return twists.isEmpty ? [.plain] : twists
     }
 
     var effectiveThemes: [WordTheme] {
@@ -160,20 +211,24 @@ nonisolated struct UsernameGenerator {
 
     /// Everything about a username that isn't random: slot vocabularies and the length budget.
     /// With a length limit, digits are dropped first, then words, so a result always fits.
-    private func plan(options: UsernameOptions, separator: WordSeparator) -> Plan? {
+    private func plan(options: UsernameOptions, separator: WordSeparator, twist: WordTwist) -> Plan? {
         var wordCount = options.wordCount.clamped(to: UsernameOptions.wordCountRange)
         var digitCount = options.includeNumber ? options.digitCount.clamped(to: UsernameOptions.digitCountRange) : 0
         let separator = separator.rawValue
 
-        // Each distinct source is filtered once, however many slots share it.
+        // The vocabularies are respelled once. Each distinct source is then filtered once, however many slots share it.
+        let anyPool = options.pattern == .random
+            ? twist.apply(to: words ?? WordTheme.words(for: options.effectiveThemes, includingBlocked: options.includeBlockedWords))
+            : []
+        let adjectivePool = options.pattern == .adjectiveNoun ? twist.apply(to: adjectives ?? words ?? WordList.adjectives) : []
+        let nounPool = options.pattern == .adjectiveNoun
+            ? twist.apply(to: nouns ?? words ?? WordTheme.nouns(for: options.effectiveThemes, includingBlocked: options.includeBlockedWords))
+            : []
         func makePools(for count: Int, _ transform: ([String]) -> [String]) -> [[String]] {
             switch options.pattern {
             case .random:
-                let source = words ?? WordTheme.words(for: options.effectiveThemes, includingBlocked: options.includeBlockedWords)
-                return Array(repeating: transform(source), count: count)
+                return Array(repeating: transform(anyPool), count: count)
             case .adjectiveNoun:
-                let adjectivePool = adjectives ?? words ?? WordList.adjectives
-                let nounPool = nouns ?? words ?? WordTheme.nouns(for: options.effectiveThemes, includingBlocked: options.includeBlockedWords)
                 return Array(repeating: transform(adjectivePool), count: count - 1) + [transform(nounPool)]
             }
         }
@@ -218,8 +273,8 @@ nonisolated struct UsernameGenerator {
         var letters: [Character] = []
     }
 
-    private func prepare(options: UsernameOptions, separator: WordSeparator) -> Prepared? {
-        guard let plan = plan(options: options, separator: separator) else { return nil }
+    private func prepare(options: UsernameOptions, separator: WordSeparator, twist: WordTwist) -> Prepared? {
+        guard let plan = plan(options: options, separator: separator, twist: twist) else { return nil }
         guard options.alliterate else { return Prepared(plan: plan) }
         // Slots that share a pool (the same array buffer) are grouped once.
         var buckets: [[Character: [String]]] = []
@@ -250,20 +305,28 @@ nonisolated struct UsernameGenerator {
         return parts.joined(separator: prepared.plan.separator)
     }
 
-    /// Plans are built once per separator and kept in `cache`, so a batch doesn't repeat that work.
-    private func generate<R: RandomNumberGenerator>(options: UsernameOptions, cache: inout [WordSeparator: Prepared], using rng: inout R) -> String {
-        let separator = options.effectiveSeparators.randomElement(using: &rng)!
-        if cache[separator] == nil {
-            cache[separator] = prepare(options: options, separator: separator)
+    private struct PlanKey: Hashable {
+        var separator: WordSeparator
+        var twist: WordTwist
+    }
+
+    /// Plans are built once per separator and twist and kept in `cache`, so a batch doesn't repeat that work.
+    private func generate<R: RandomNumberGenerator>(options: UsernameOptions, cache: inout [PlanKey: Prepared], using rng: inout R) -> String {
+        let key = PlanKey(
+            separator: options.effectiveSeparators.randomElement(using: &rng)!,
+            twist: options.effectiveTwists.randomElement(using: &rng)!
+        )
+        if cache[key] == nil {
+            cache[key] = prepare(options: options, separator: key.separator, twist: key.twist)
         }
-        guard let prepared = cache[separator] else { return "" }
+        guard let prepared = cache[key] else { return "" }
         return build(options: options, prepared: prepared, using: &rng)
     }
 
     /// Builds a username from random words, optionally followed by random digits.
     /// The default random source is the system's cryptographically secure generator.
     func generate<R: RandomNumberGenerator>(options: UsernameOptions, using rng: inout R) -> String {
-        var cache: [WordSeparator: Prepared] = [:]
+        var cache: [PlanKey: Prepared] = [:]
         return generate(options: options, cache: &cache, using: &rng)
     }
 
@@ -274,7 +337,7 @@ nonisolated struct UsernameGenerator {
 
     func generateBatch(options: UsernameOptions, count: Int) -> [String] {
         var rng = SystemRandomNumberGenerator()
-        var cache: [WordSeparator: Prepared] = [:]
+        var cache: [PlanKey: Prepared] = [:]
         return (0..<count).map { _ in generate(options: options, cache: &cache, using: &rng) }
     }
 
@@ -298,25 +361,27 @@ nonisolated struct UsernameGenerator {
         }
 
         var total = 0.0
-        // A lone word or number has nothing to join, so every separator gives the same username.
-        var countedUnjoined = false
-        // Without a length limit the separator doesn't change the plan, so work out its count once.
-        var shared: (count: Double, unjoined: Bool)?
-        for separator in options.effectiveSeparators {
-            let result: (count: Double, unjoined: Bool)
-            if let shared, !options.limitLength {
-                result = shared
-            } else {
-                guard let prepared = prepare(options: options, separator: separator) else { return 0 }
-                let plan = prepared.plan
-                result = (count(prepared), plan.pools.count + (plan.digitCount > 0 ? 1 : 0) <= 1)
-                shared = result
+        for twist in options.effectiveTwists {
+            // A lone word or number has nothing to join, so every separator gives the same username.
+            var countedUnjoined = false
+            // Without a length limit the separator doesn't change the plan, so work out its count once.
+            var shared: (count: Double, unjoined: Bool)?
+            for separator in options.effectiveSeparators {
+                let result: (count: Double, unjoined: Bool)
+                if let shared, !options.limitLength {
+                    result = shared
+                } else {
+                    guard let prepared = prepare(options: options, separator: separator, twist: twist) else { return 0 }
+                    let plan = prepared.plan
+                    result = (count(prepared), plan.pools.count + (plan.digitCount > 0 ? 1 : 0) <= 1)
+                    shared = result
+                }
+                if result.unjoined {
+                    if countedUnjoined { continue }
+                    countedUnjoined = true
+                }
+                total += result.count
             }
-            if result.unjoined {
-                if countedUnjoined { continue }
-                countedUnjoined = true
-            }
-            total += result.count
         }
         return total
     }

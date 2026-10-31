@@ -29,6 +29,7 @@ struct ContentView: View {
     @AppStorage("lettersAndDigitsOnly", store: SharedSettings.defaults) private var lettersAndDigitsOnly = UsernameOptions().lettersAndDigitsOnly
     @AppStorage("includeBlockedWords", store: SharedSettings.defaults) private var includeBlockedWords = UsernameOptions().includeBlockedWords
 
+    @AppStorage("twists", store: SharedSettings.defaults) private var twistsRaw = WordTwist.encode(UsernameOptions().twists)
     @AppStorage("pattern", store: SharedSettings.defaults) private var pattern = UsernameOptions().pattern
     @AppStorage("alliterate", store: SharedSettings.defaults) private var alliterate = UsernameOptions().alliterate
 
@@ -53,6 +54,7 @@ struct ContentView: View {
             maxLength: maxLength,
             lettersAndDigitsOnly: lettersAndDigitsOnly,
             includeBlockedWords: includeBlockedWords,
+            twists: twists,
             // With one word there is nothing to pattern or alliterate. The saved choices are kept.
             pattern: wordCount > 1 ? pattern : .random,
             alliterate: wordCount > 1 && alliterate
@@ -67,6 +69,11 @@ struct ContentView: View {
     private var wordCases: Set<WordCase> {
         let cases = WordCase.decode(wordCasesRaw)
         return cases.isEmpty ? [.title] : cases
+    }
+
+    private var twists: Set<WordTwist> {
+        let twists = WordTwist.decode(twistsRaw)
+        return twists.isEmpty ? [.plain] : twists
     }
 
     private var themes: Set<WordTheme> {
@@ -166,6 +173,10 @@ struct ContentView: View {
                     MultiSelectMenu(
                         id: "capitalizationMenu", title: "Capitalization", plural: "styles", label: \.label,
                         selection: Binding { wordCases } set: { wordCasesRaw = WordCase.encode($0) }
+                    )
+                    MultiSelectMenu(
+                        id: "twistMenu", title: "Spelling", plural: "spellings", label: \.label,
+                        selection: Binding { twists } set: { twistsRaw = WordTwist.encode($0) }
                     )
                 }
 

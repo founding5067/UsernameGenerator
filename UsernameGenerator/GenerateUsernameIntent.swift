@@ -31,6 +31,13 @@ extension WordPattern: AppEnum {
     }
 }
 
+extension WordTwist: AppEnum {
+    nonisolated static var typeDisplayRepresentation: TypeDisplayRepresentation { "Spelling" }
+    nonisolated static var caseDisplayRepresentations: [WordTwist: DisplayRepresentation] {
+        [.plain: "Plain", .leet: "Leetspeak (l33t)", .noVowels: "No vowels (qt)"]
+    }
+}
+
 /// Separate from `WordSeparator` because its `none` case has an empty raw value.
 enum SeparatorChoice: String, AppEnum {
     case none, hyphen, underscore, period, plus, tilde
@@ -80,6 +87,9 @@ struct GenerateUsernameIntent: AppIntent {
     @Parameter(title: "Include Filtered Words", default: false)
     var includeBlockedWords: Bool
 
+    @Parameter(title: "Spellings", default: [.plain])
+    var twists: [WordTwist]
+
     @Parameter(title: "Pattern", default: .random)
     var pattern: WordPattern
 
@@ -92,6 +102,7 @@ struct GenerateUsernameIntent: AppIntent {
             \.$pattern
             \.$alliterate
             \.$wordCases
+            \.$twists
             \.$digits
             \.$maxLength
             \.$lettersAndDigitsOnly
@@ -111,6 +122,7 @@ struct GenerateUsernameIntent: AppIntent {
             maxLength: maxLength ?? UsernameOptions().maxLength,
             lettersAndDigitsOnly: lettersAndDigitsOnly,
             includeBlockedWords: includeBlockedWords,
+            twists: Set(twists),
             pattern: pattern,
             alliterate: alliterate
         )

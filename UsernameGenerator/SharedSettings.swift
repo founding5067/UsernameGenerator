@@ -68,6 +68,7 @@ nonisolated enum SharedSettings {
         if let v = d.object(forKey: "maxLength") as? Int { options.maxLength = v }
         if let v = d.object(forKey: "lettersAndDigitsOnly") as? Bool { options.lettersAndDigitsOnly = v }
         if let v = d.object(forKey: "includeBlockedWords") as? Bool { options.includeBlockedWords = v }
+        if let v = d.string(forKey: "twists") { options.twists = WordTwist.decode(v) }
         if let v = d.string(forKey: "pattern").flatMap(WordPattern.init(rawValue:)) { options.pattern = v }
         if let v = d.object(forKey: "alliterate") as? Bool { options.alliterate = v }
         return options

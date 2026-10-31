@@ -290,6 +290,67 @@ struct UsernameGeneratorTests {
         #expect(WordCase.decode("bogus").isEmpty)
     }
 
+    @Test func twistsRespellWords() {
+        #expect(WordTwist.leet.apply(to: "otter") == "0tt3r")
+        #expect(WordTwist.leet.apply(to: "Quiet") == "Qu13t")
+        #expect(WordTwist.noVowels.apply(to: "otter") == "ottr")
+        #expect(WordTwist.noVowels.apply(to: "quiet") == "qt")
+        #expect(WordTwist.plain.apply(to: "otter") == "otter")
+    }
+
+    @Test func twistedPoolsDropRepeats() {
+        // "bad" and "bed" both become "bd".
+        #expect(WordTwist.noVowels.apply(to: ["bad", "bed", "cat"]) == ["bd", "ct"])
+    }
+
+    @Test func twistsMixButStayWithinSelection() {
+        let g = UsernameGenerator(words: ["otter"])
+        let options = UsernameOptions(wordCount: 1, wordCases: [.lower], includeNumber: false, twists: [.plain, .leet])
+        let results = Set((0..<100).map { _ in g.generate(options: options) })
+        #expect(results == ["otter", "0tt3r"])
+    }
+
+    @Test func emptyTwistSetFallsBackToPlain() {
+        let g = UsernameGenerator(words: ["otter"])
+        let options = UsernameOptions(wordCount: 1, wordCases: [.lower], includeNumber: false, twists: [])
+        #expect(g.generate(options: options) == "otter")
+    }
+
+    @Test func twistSetEncodingRoundTrips() {
+        let twists: Set<WordTwist> = [.leet, .noVowels]
+        #expect(WordTwist.decode(WordTwist.encode(twists)) == twists)
+        #expect(WordTwist.decode("bogus").isEmpty)
+    }
+
+    @Test(arguments: [WordTwist.leet, .noVowels])
+    func twistedUsernamesRespectLengthLimitAndAlliteration(twist: WordTwist) {
+        let options = UsernameOptions(wordCount: 3, separators: [.hyphen], wordCases: [.lower], includeNumber: false,
+                                      limitLength: true, maxLength: 16, twists: [twist], alliterate: true)
+        for _ in 0..<100 {
+            let name = UsernameGenerator().generate(options: options)
+            #expect(name.count <= 16, "\(name)")
+            #expect(Set(name.split(separator: "-").compactMap(\.first)).count == 1, "\(name)")
+        }
+    }
+
+    @Test func leetUsernamesHaveNoSubstitutedLetters() {
+        let options = UsernameOptions(wordCount: 2, wordCases: [.lower], includeNumber: false, twists: [.leet])
+        for _ in 0..<100 {
+            let name = UsernameGenerator().generate(options: options)
+            #expect(!name.contains(where: { "aeio".contains($0) }), "\(name)")
+        }
+    }
+
+    @Test func twistsAddCombinationsAndMergedWordsCountOnce() {
+        let g = UsernameGenerator(words: ["bad", "bed", "cat"])
+        func count(_ twists: Set<WordTwist>) -> Double {
+            g.combinationCount(options: UsernameOptions(wordCount: 1, wordCases: [.lower], includeNumber: false, twists: twists))
+        }
+        #expect(count([.plain]) == 3)
+        #expect(count([.noVowels]) == 2)
+        #expect(count([.plain, .noVowels]) == 5)
+    }
+
     @Test func combinationCountsScaleWithDistinctStyles() {
         let g = UsernameGenerator(words: ["ant", "bee", "cat"])
         let base = UsernameOptions(wordCount: 2, includeNumber: false)
