@@ -41,7 +41,7 @@ struct ContentView: View {
 
     @State private var usernames: [GeneratedUsername] = []
     /// A word kept from a result while the rest are rerolled. Lives only until you clear it or close the app.
-    @State private var keptWord: KeptWord?
+    @State private var keptWord: PinnedWord?
     @State private var copied: String?
     /// Worked out when the options change, not on every redraw.
     @State private var combinations = 0.0
@@ -63,15 +63,13 @@ struct ContentView: View {
             lettersAndDigitsOnly: lettersAndDigitsOnly,
             includeBlockedWords: includeBlockedWords,
             twists: twists,
-            // With one word there is nothing to pattern or alliterate. The saved choices are kept.
-            pattern: wordCount > 1 && !madeUpWords ? pattern : .random,
-            alliterate: wordCount > 1 && alliterate,
+            pattern: pattern,
+            alliterate: alliterate,
             pinnedWord: customWord,
             pinnedPosition: customWordPosition,
-            keptWord: keptWord?.word ?? "",
-            keptPosition: keptWord?.position ?? .start,
             madeUpWords: madeUpWords
         )
+        .applyingScreenRules(kept: keptWord)
     }
 
     private var separators: Set<WordSeparator> {
@@ -158,7 +156,7 @@ struct ContentView: View {
                             if generated.words.count > 1 {
                                 ForEach(Array(generated.words.enumerated()), id: \.offset) { index, word in
                                     Button("Keep “\(word)”") {
-                                        keptWord = KeptWord(word: word, position: index == 0 ? .start : .end)
+                                        keptWord = PinnedWord(word: word, position: index == 0 ? .start : .end)
                                     }
                                 }
                             }
@@ -376,11 +374,6 @@ struct ContentView: View {
         #endif
         withAnimation { copied = name }
     }
-}
-
-private struct KeptWord: Equatable {
-    var word: String
-    var position: PinPosition
 }
 
 /// A row that opens a menu of checkmarks. At least one choice always stays selected.

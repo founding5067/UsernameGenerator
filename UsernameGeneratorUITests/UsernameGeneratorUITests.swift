@@ -260,4 +260,255 @@ final class UsernameGeneratorUITests: XCTestCase {
         }
         XCTAssertTrue(sawHyphen)
     }
+
+    // MARK: - Helpers for the newer controls
+
+    /// Opens the menu behind a row. On iPhone and iPad only the value at the trailing edge opens it.
+    private func openMenu(_ id: String) {
+        reveal(element(id))
+        #if os(iOS)
+        let menu = element(id)
+        menu.coordinate(withNormalizedOffset: CGVector(dx: 1 - 40 / menu.frame.width, dy: 0.5)).tap()
+        #else
+        press(element(id))
+        #endif
+    }
+
+    /// A menu item or button with this title.
+    private func menuChoice(_ title: String) -> XCUIElement {
+        app.descendants(matching: .any)[title].firstMatch
+    }
+
+    /// Picks one value from a picker row. The menu closes by itself afterwards.
+    private func pickFromPicker(_ id: String, _ title: String) {
+        reveal(element(id))
+        press(element(id))
+        let choice = menuChoice(title)
+        XCTAssertTrue(choice.waitForExistence(timeout: 5), "No menu item named \(title)")
+        press(choice)
+    }
+
+    #if !os(visionOS)
+    private func typeYourWord(_ word: String) {
+        let field = app.textFields["customWord"]
+        reveal(field)
+        press(field)
+        field.typeText(word)
+        #if os(iOS)
+        field.typeText("\n")
+        #endif
+    }
+    #endif
+
+    private func openContextMenu(on row: XCUIElement) {
+        #if os(macOS)
+        row.rightClick()
+        #else
+        row.press(forDuration: 1.0)
+        #endif
+    }
+
+    /// The "Keep “word”" choices in an open context menu, in the order of the words.
+    private func keepChoices() -> [XCUIElement] {
+        #if os(macOS)
+        let query = app.menuItems
+        #else
+        let query = app.buttons
+        #endif
+        return query.matching(NSPredicate(format: "label BEGINSWITH %@", "Keep “")).allElementsBoundByIndex
+    }
+
+    private func word(fromKeepLabel label: String) -> String {
+        String(label.drop { $0 != "“" }.dropFirst().prefix { $0 != "”" })
+    }
+
+    /// Keeps one word of the first result. Returns the word, lowercase as it is listed in the menu.
+    @discardableResult
+    private func keepWord(at index: Int?) -> String {
+        scrollToTop()
+        openContextMenu(on: rows.firstMatch)
+        let choices = keepChoices()
+        XCTAssertFalse(choices.isEmpty, "The context menu has no Keep choices")
+        let choice = index.map { choices[min($0, choices.count - 1)] } ?? choices[choices.count - 1]
+        let kept = word(fromKeepLabel: choice.label)
+        press(choice)
+        return kept
+    }
+
+    // MARK: - Your own word
+
+    #if !os(visionOS)
+    @MainActor
+    func testYourWordAppearsAtTheStartOfEveryUsername() {
+        typeYourWord("zed")
+        // Title case, so the word shows up as "Zed".
+        wait("Not every username starts with the word") { usernames.allSatisfy { $0.hasPrefix("Zed") } }
+        generate()
+        wait("Rerolling dropped the word") { usernames.allSatisfy { $0.hasPrefix("Zed") } }
+    }
+
+    @MainActor
+    func testYourWordCanMoveToTheEnd() {
+        toggle("addNumbers")
+        typeYourWord("zed")
+        wait("Not every username starts with the word") { usernames.allSatisfy { $0.hasPrefix("Zed") } }
+        pickFromPicker("customWordPosition", "End")
+        wait("Not every username ends with the word") { usernames.allSatisfy { $0.hasSuffix("Zed") } }
+        XCTAssertTrue(usernames.allSatisfy { !$0.hasPrefix("Zed") })
+    }
+
+    @MainActor
+    func testYourWordTakesOneOfTheWordSlots() {
+        toggle("addNumbers")
+        typeYourWord("zed")
+        // Two words by default: the typed one plus one random word, so two capitals.
+        wait("Usernames do not have two words") { usernames.allSatisfy { capitals(in: $0) == 2 } }
+    }
+
+    @MainActor
+    func testYourWordIsShortenedByTheLengthLimit() {
+        typeYourWord("averylongusername")
+        toggle("limitLength")
+        step("maxLength", up: false, times: 9)
+        wait("Usernames are longer than 6") { usernames.allSatisfy { $0.count <= 6 } }
+    }
+    #endif
+
+    // MARK: - Keeping a word
+
+    @MainActor
+    func testKeepingAWordHoldsItWhileTheRestAreRerolled() {
+        let kept = keepWord(at: 0)
+        XCTAssertFalse(kept.isEmpty)
+        XCTAssertTrue(element("keptWord").waitForExistence(timeout: 5), "No Keeping row appeared")
+        wait("Not every username has the kept word first") { usernames.allSatisfy { $0.lowercased().hasPrefix(kept) } }
+        generate()
+        wait("Rerolling dropped the kept word") { usernames.allSatisfy { $0.lowercased().hasPrefix(kept) } }
+        // The other word still changes between rerolls.
+        let before = usernames
+        generate()
+        wait("The other words did not change") { usernames != before }
+    }
+
+    @MainActor
+    func testClearingTheKeptWordFreesIt() {
+        let kept = keepWord(at: 0)
+        wait("Not every username has the kept word") { usernames.allSatisfy { $0.lowercased().hasPrefix(kept) } }
+        press(element("clearKept"))
+        wait("The Keeping row is still there") { !element("keptWord").exists }
+        // A common word could start a result by chance, but not all five of several batches.
+        var freed = false
+        for _ in 0..<5 where !freed {
+            generate()
+            freed = usernames.contains { !$0.lowercased().hasPrefix(kept) }
+        }
+        XCTAssertTrue(freed, "Every username still starts with \(kept)")
+    }
+
+    @MainActor
+    func testGoingToOneWordClearsTheKeptWord() {
+        keepWord(at: 0)
+        XCTAssertTrue(element("keptWord").waitForExistence(timeout: 5))
+        step("wordCount", up: false)
+        wait("The Keeping row stayed after dropping to one word") { !element("keptWord").exists }
+    }
+
+    @MainActor
+    func testOneWordHasNothingToKeep() {
+        step("wordCount", up: false)
+        wait("Usernames did not drop to one word") { usernames.allSatisfy { capitals(in: $0) == 1 } }
+        scrollToTop()
+        openContextMenu(on: rows.firstMatch)
+        XCTAssertTrue(keepChoices().isEmpty, "A single word should offer nothing to keep")
+    }
+
+    #if !os(visionOS)
+    /// Regression: keeping a word used to replace the word typed into "Your word".
+    @MainActor
+    func testKeepingAWordDoesNotDropYourOwnWord() {
+        toggle("addNumbers")
+        typeYourWord("zed")
+        wait("Not every username starts with the word") { usernames.allSatisfy { $0.hasPrefix("Zed") } }
+        // The second word of a result is the random one, which goes to the end when kept.
+        let kept = keepWord(at: nil)
+        XCTAssertNotEqual(kept, "zed")
+        wait("Your word or the kept word went missing") { usernames.allSatisfy { $0.lowercased() == "zed" + kept } }
+        generate()
+        wait("Rerolling lost one of the words") { usernames.allSatisfy { $0.lowercased() == "zed" + kept } }
+    }
+    #endif
+
+    // MARK: - Made-up words
+
+    @MainActor
+    func testMadeUpWordsDisableThemesAndPatterns() {
+        reveal(element("themeMenu"))
+        XCTAssertTrue(element("themeMenu").isEnabled)
+        XCTAssertTrue(element("pattern").exists)
+        let strength = text("strength")
+
+        pickFromPicker("madeUp", "Made-up")
+
+        reveal(element("themeMenu"))
+        wait("The theme menu is still enabled") { !element("themeMenu").isEnabled }
+        wait("The pattern picker is still there") { !element("pattern").exists && element("patternFixed").exists }
+        wait("The strength meter did not change") { text("strength") != strength }
+        XCTAssertEqual(rows.count, 5)
+    }
+
+    @MainActor
+    func testSwitchingBackToRealWordsReturnsTheControls() {
+        pickFromPicker("madeUp", "Made-up")
+        reveal(element("themeMenu"))
+        wait("The theme menu is still enabled") { !element("themeMenu").isEnabled }
+        pickFromPicker("madeUp", "Real words")
+        reveal(element("themeMenu"))
+        wait("The theme menu did not come back") { element("themeMenu").isEnabled }
+        XCTAssertTrue(element("pattern").waitForExistence(timeout: 5))
+    }
+
+    // MARK: - Spelling
+
+    @MainActor
+    func testLeetspeakLeavesNoSubstitutedVowels() {
+        openMenu("twistMenu")
+        press(menuChoice("Leetspeak (l33t)"))
+        #if os(macOS)
+        // The menu closes after each choice on a Mac.
+        openMenu("twistMenu")
+        #endif
+        press(menuChoice("Plain"))
+        #if !os(macOS)
+        // The menu stays open on iOS and visionOS so several choices can be made. Tap outside to close it.
+        app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.12)).tap()
+        #endif
+        wait("Usernames still have a, e, i or o") {
+            usernames.allSatisfy { name in !name.lowercased().contains { "aeio".contains($0) } }
+        }
+        generate()
+        wait("New usernames have a, e, i or o") {
+            usernames.allSatisfy { name in !name.lowercased().contains { "aeio".contains($0) } }
+        }
+    }
+
+    // MARK: - Keyboard section
+
+    @MainActor
+    func testKeyboardSectionIsOnlyOnIPhoneAndIPad() {
+        let instructions = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Username Keyboard")).firstMatch
+        #if os(iOS)
+        reveal(instructions)
+        XCTAssertTrue(instructions.exists)
+        #else
+        // Scroll to the very bottom first, since rows off screen don't exist yet.
+        for _ in 0..<10 {
+            #if os(macOS)
+            app.scrollViews.firstMatch.scroll(byDeltaX: 0, deltaY: -600)
+            #else
+            form.swipeUp()
+            #endif
+        }
+        XCTAssertFalse(instructions.exists, "The keyboard is only built for iPhone and iPad")
+        #endif
+    }
 }

@@ -20,16 +20,8 @@ struct KeyboardView: View {
     @State private var usernames: [String] = []
 
     private static let batchSize = 4
-    private static let wordCounts = [1, 2, 3]
-    private static let maxLengths = [0, 12, 15, 20]
-
     private var options: UsernameOptions {
-        UsernameOptions(
-            wordCount: wordCount,
-            includeNumber: includeNumber,
-            limitLength: maxLength > 0,
-            maxLength: maxLength > 0 ? maxLength : UsernameOptions().maxLength
-        )
+        .keyboard(wordCount: wordCount, includeNumber: includeNumber, maxLength: maxLength)
     }
 
     var body: some View {
@@ -62,14 +54,14 @@ struct KeyboardView: View {
     private var optionsRow: some View {
         HStack(spacing: 10) {
             Picker("Words", selection: $wordCount) {
-                ForEach(Self.wordCounts, id: \.self) { Text($0 == 1 ? "1 word" : "\($0) words").tag($0) }
+                ForEach(UsernameOptions.keyboardWordCounts, id: \.self) { Text($0 == 1 ? "1 word" : "\($0) words").tag($0) }
             }
             .pickerStyle(.segmented)
             Toggle("Digits", isOn: $includeNumber)
                 .toggleStyle(.button)
                 .tint(.accentColor)
             Picker("Length", selection: $maxLength) {
-                ForEach(Self.maxLengths, id: \.self) { Text($0 == 0 ? "No limit" : "Max \($0)").tag($0) }
+                ForEach(UsernameOptions.keyboardMaxLengths, id: \.self) { Text($0 == 0 ? "No limit" : "Max \($0)").tag($0) }
             }
             .pickerStyle(.menu)
         }

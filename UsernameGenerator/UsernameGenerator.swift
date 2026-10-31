@@ -209,6 +209,18 @@ nonisolated struct UsernameOptions: Equatable {
     /// Pronounceable invented words instead of real ones. Themes and patterns don't apply to these.
     var madeUpWords = false
 
+    /// What the settings screen does to the saved choices before generating. One word has nothing to
+    /// pattern or alliterate, and made-up words have no patterns. The saved choices themselves are kept.
+    /// A kept word sits alongside your own word and never replaces it.
+    func applyingScreenRules(kept: PinnedWord?) -> UsernameOptions {
+        var options = self
+        if wordCount <= 1 || madeUpWords { options.pattern = .random }
+        if wordCount <= 1 { options.alliterate = false }
+        options.keptWord = kept?.word ?? ""
+        options.keptPosition = kept?.position ?? .start
+        return options
+    }
+
     var effectiveSeparators: [WordSeparator] {
         let separators = WordSeparator.allCases.filter(separators.contains)
         return lettersAndDigitsOnly || separators.isEmpty ? [.none] : separators

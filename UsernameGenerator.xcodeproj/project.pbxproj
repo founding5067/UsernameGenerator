@@ -11,7 +11,7 @@
 		702A6EC430959A3A005EAD22 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 702A6EC330959A3A005EAD22 /* SwiftUI.framework */; };
 		702A6ED130959A3B005EAD22 /* UsernameWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 702A6EBF30959A3A005EAD22 /* UsernameWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		70A320CC30963CF900D69CB7 /* UsernameSafariExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 70A320B430963CF900D69CB7 /* UsernameSafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		70C1000B3100A001005EAD22 /* UsernameKeyboard.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 70C100013100A001005EAD22 /* UsernameKeyboard.appex */; platformFilters = (ios, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		70C1000B3100A001005EAD22 /* UsernameKeyboard.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 70C100013100A001005EAD22 /* UsernameKeyboard.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -526,9 +526,7 @@
 		};
 		70C1000A3100A001005EAD22 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilters = (
-				ios,
-			);
+			platformFilter = ios;
 			target = 70C100083100A001005EAD22 /* UsernameKeyboard */;
 			targetProxy = 70C100093100A001005EAD22 /* PBXContainerItemProxy */;
 		};
