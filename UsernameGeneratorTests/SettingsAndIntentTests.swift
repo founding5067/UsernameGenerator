@@ -194,10 +194,13 @@ struct SettingsAndIntentTests {
     @Test func intentUsesMadeUpWords() async throws {
         let intent = makeIntent()
         intent.madeUpWords = true
-        for _ in 0..<5 {
-            let value = try await intent.perform().value ?? ""
-            #expect(MadeUpWords.pool.contains(value), "\(value)")
+        // A few real words happen to fit the made-up grammar, so one result alone could pass by luck.
+        var values: [String] = []
+        for _ in 0..<10 {
+            values.append(try await intent.perform().value ?? "")
         }
+        let pool = Set(MadeUpWords.pool)
+        #expect(values.allSatisfy(pool.contains), "\(values)")
     }
 
     @Test func intentHonorsLengthLimitWithYourWord() async throws {

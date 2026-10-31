@@ -13,7 +13,7 @@ nonisolated enum MadeUpWords {
     static let vowels = ["a", "e", "i", "o", "u"]
     static let codas = ["", "n", "r", "l", "s"]
 
-    /// Two syllables each, so 4 to 6 letters. The order is fixed, so a seeded generator is reproducible.
+    /// Every word is two syllables of 2 to 4 letters each, so 4 to 8 letters. The order is fixed, so a seeded generator is reproducible.
     static let pool: [String] = build()
 
     /// Parts of words that must not show up anywhere in a made-up word: every blocked word of three or
