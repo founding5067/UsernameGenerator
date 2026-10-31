@@ -1,0 +1,799 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 110;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		702A6EC230959A3A005EAD22 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 702A6EC130959A3A005EAD22 /* WidgetKit.framework */; };
+		702A6EC430959A3A005EAD22 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 702A6EC330959A3A005EAD22 /* SwiftUI.framework */; };
+		702A6ED130959A3B005EAD22 /* UsernameWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 702A6EBF30959A3A005EAD22 /* UsernameWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		702A679C30958EB6005EAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 702A678430958EB6005EAD22 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 702A678B30958EB6005EAD22;
+			remoteInfo = UsernameGenerator;
+		};
+		702A67A630958EB6005EAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 702A678430958EB6005EAD22 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 702A678B30958EB6005EAD22;
+			remoteInfo = UsernameGenerator;
+		};
+		702A6ECF30959A3B005EAD22 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 702A678430958EB6005EAD22 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 702A6EBE30959A3A005EAD22;
+			remoteInfo = UsernameWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		702A6ED630959A3B005EAD22 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "";
+			dstSubfolder = PlugIns;
+			files = (
+				702A6ED130959A3B005EAD22 /* UsernameWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		702A678C30958EB6005EAD22 /* UsernameGenerator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UsernameGenerator.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		702A679B30958EB6005EAD22 /* UsernameGeneratorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UsernameGeneratorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		702A67A530958EB6005EAD22 /* UsernameGeneratorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UsernameGeneratorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		702A6EBF30959A3A005EAD22 /* UsernameWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = UsernameWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		702A6EC130959A3A005EAD22 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = /System/Library/Frameworks/WidgetKit.framework; sourceTree = "<absolute>"; };
+		702A6EC330959A3A005EAD22 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = /System/Library/Frameworks/SwiftUI.framework; sourceTree = "<absolute>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		702A6ED230959A3B005EAD22 /* Exceptions for "UsernameWidget" folder in "UsernameWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 702A6EBE30959A3A005EAD22 /* UsernameWidgetExtension */;
+		};
+		702A6EDA30959A3B005EAD22 /* Exceptions for "UsernameGenerator" folder in "UsernameWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Assets.xcassets,
+				ContentView.swift,
+				GenerateUsernameIntent.swift,
+				UsernameGeneratorApp.swift,
+			);
+			target = 702A6EBE30959A3A005EAD22 /* UsernameWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		702A678E30958EB6005EAD22 /* UsernameGenerator */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				702A6EDA30959A3B005EAD22 /* Exceptions for "UsernameGenerator" folder in "UsernameWidgetExtension" target */,
+			);
+			path = UsernameGenerator;
+			sourceTree = "<group>";
+		};
+		702A679E30958EB6005EAD22 /* UsernameGeneratorTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = UsernameGeneratorTests;
+			sourceTree = "<group>";
+		};
+		702A67A830958EB6005EAD22 /* UsernameGeneratorUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = UsernameGeneratorUITests;
+			sourceTree = "<group>";
+		};
+		702A6EC530959A3A005EAD22 /* UsernameWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				702A6ED230959A3B005EAD22 /* Exceptions for "UsernameWidget" folder in "UsernameWidgetExtension" target */,
+			);
+			path = UsernameWidget;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		702A678930958EB6005EAD22 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		702A679830958EB6005EAD22 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		702A67A230958EB6005EAD22 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		702A6EBC30959A3A005EAD22 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+				702A6EC430959A3A005EAD22 /* SwiftUI.framework in Frameworks */,
+				702A6EC230959A3A005EAD22 /* WidgetKit.framework in Frameworks */,
+			);
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		702A678330958EB6005EAD22 = {
+			isa = PBXGroup;
+			children = (
+				702A678E30958EB6005EAD22 /* UsernameGenerator */,
+				702A679E30958EB6005EAD22 /* UsernameGeneratorTests */,
+				702A67A830958EB6005EAD22 /* UsernameGeneratorUITests */,
+				702A6EC530959A3A005EAD22 /* UsernameWidget */,
+				702A6EC030959A3A005EAD22 /* Frameworks */,
+				702A678D30958EB6005EAD22 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		702A678D30958EB6005EAD22 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				702A678C30958EB6005EAD22 /* UsernameGenerator.app */,
+				702A679B30958EB6005EAD22 /* UsernameGeneratorTests.xctest */,
+				702A67A530958EB6005EAD22 /* UsernameGeneratorUITests.xctest */,
+				702A6EBF30959A3A005EAD22 /* UsernameWidgetExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		702A6EC030959A3A005EAD22 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				702A6EC130959A3A005EAD22 /* WidgetKit.framework */,
+				702A6EC330959A3A005EAD22 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		702A678B30958EB6005EAD22 /* UsernameGenerator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 702A67AD30958EB6005EAD22 /* Build configuration list for PBXNativeTarget "UsernameGenerator" */;
+			buildPhases = (
+				702A678830958EB6005EAD22 /* Sources */,
+				702A678930958EB6005EAD22 /* Frameworks */,
+				702A678A30958EB6005EAD22 /* Resources */,
+				702A6ED630959A3B005EAD22 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				702A6ED030959A3B005EAD22 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				702A678E30958EB6005EAD22 /* UsernameGenerator */,
+			);
+			name = UsernameGenerator;
+			productName = UsernameGenerator;
+			productReference = 702A678C30958EB6005EAD22 /* UsernameGenerator.app */;
+			productType = "com.apple.product-type.application";
+		};
+		702A679A30958EB6005EAD22 /* UsernameGeneratorTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 702A67B030958EB6005EAD22 /* Build configuration list for PBXNativeTarget "UsernameGeneratorTests" */;
+			buildPhases = (
+				702A679730958EB6005EAD22 /* Sources */,
+				702A679830958EB6005EAD22 /* Frameworks */,
+				702A679930958EB6005EAD22 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				702A679D30958EB6005EAD22 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				702A679E30958EB6005EAD22 /* UsernameGeneratorTests */,
+			);
+			name = UsernameGeneratorTests;
+			productName = UsernameGeneratorTests;
+			productReference = 702A679B30958EB6005EAD22 /* UsernameGeneratorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		702A67A430958EB6005EAD22 /* UsernameGeneratorUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 702A67B330958EB6005EAD22 /* Build configuration list for PBXNativeTarget "UsernameGeneratorUITests" */;
+			buildPhases = (
+				702A67A130958EB6005EAD22 /* Sources */,
+				702A67A230958EB6005EAD22 /* Frameworks */,
+				702A67A330958EB6005EAD22 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				702A67A730958EB6005EAD22 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				702A67A830958EB6005EAD22 /* UsernameGeneratorUITests */,
+			);
+			name = UsernameGeneratorUITests;
+			productName = UsernameGeneratorUITests;
+			productReference = 702A67A530958EB6005EAD22 /* UsernameGeneratorUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		702A6EBE30959A3A005EAD22 /* UsernameWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 702A6ED330959A3B005EAD22 /* Build configuration list for PBXNativeTarget "UsernameWidgetExtension" */;
+			buildPhases = (
+				702A6EBB30959A3A005EAD22 /* Sources */,
+				702A6EBC30959A3A005EAD22 /* Frameworks */,
+				702A6EBD30959A3A005EAD22 /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				702A678E30958EB6005EAD22 /* UsernameGenerator */,
+				702A6EC530959A3A005EAD22 /* UsernameWidget */,
+			);
+			name = UsernameWidgetExtension;
+			productName = UsernameWidgetExtension;
+			productReference = 702A6EBF30959A3A005EAD22 /* UsernameWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		702A678430958EB6005EAD22 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2710;
+				LastUpgradeCheck = 2710;
+				TargetAttributes = {
+					702A678B30958EB6005EAD22 = {
+						CreatedOnToolsVersion = 27.1;
+					};
+					702A679A30958EB6005EAD22 = {
+						CreatedOnToolsVersion = 27.1;
+						TestTargetID = 702A678B30958EB6005EAD22;
+					};
+					702A67A430958EB6005EAD22 = {
+						CreatedOnToolsVersion = 27.1;
+						TestTargetID = 702A678B30958EB6005EAD22;
+					};
+					702A6EBE30959A3A005EAD22 = {
+						CreatedOnToolsVersion = 27.1;
+					};
+				};
+			};
+			buildConfigurationList = 702A678730958EB6005EAD22 /* Build configuration list for PBXProject "UsernameGenerator" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 702A678330958EB6005EAD22;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 702A678D30958EB6005EAD22 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				702A678B30958EB6005EAD22 /* UsernameGenerator */,
+				702A679A30958EB6005EAD22 /* UsernameGeneratorTests */,
+				702A67A430958EB6005EAD22 /* UsernameGeneratorUITests */,
+				702A6EBE30959A3A005EAD22 /* UsernameWidgetExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		702A678A30958EB6005EAD22 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		702A679930958EB6005EAD22 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		702A67A330958EB6005EAD22 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		702A6EBD30959A3A005EAD22 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		702A678830958EB6005EAD22 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		702A679730958EB6005EAD22 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		702A67A130958EB6005EAD22 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		702A6EBB30959A3A005EAD22 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		702A679D30958EB6005EAD22 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 702A678B30958EB6005EAD22 /* UsernameGenerator */;
+			targetProxy = 702A679C30958EB6005EAD22 /* PBXContainerItemProxy */;
+		};
+		702A67A730958EB6005EAD22 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 702A678B30958EB6005EAD22 /* UsernameGenerator */;
+			targetProxy = 702A67A630958EB6005EAD22 /* PBXContainerItemProxy */;
+		};
+		702A6ED030959A3B005EAD22 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 702A6EBE30959A3A005EAD22 /* UsernameWidgetExtension */;
+			targetProxy = 702A6ECF30959A3B005EAD22 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		702A67AB30958EB6005EAD22 /* Debug configuration for PBXProject "UsernameGenerator" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		702A67AC30958EB6005EAD22 /* Release configuration for PBXProject "UsernameGenerator" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		702A67AE30958EB6005EAD22 /* Debug configuration for PBXNativeTarget "UsernameGenerator" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Entitlements/UsernameGenerator.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J37YX2Z6CH;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.colebraswell.UsernameGenerator;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Debug;
+		};
+		702A67AF30958EB6005EAD22 /* Release configuration for PBXNativeTarget "UsernameGenerator" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Entitlements/UsernameGenerator.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J37YX2Z6CH;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.colebraswell.UsernameGenerator;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Release;
+		};
+		702A67B130958EB6005EAD22 /* Debug configuration for PBXNativeTarget "UsernameGeneratorTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.colebraswell.UsernameGeneratorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UsernameGenerator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UsernameGenerator";
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Debug;
+		};
+		702A67B230958EB6005EAD22 /* Release configuration for PBXNativeTarget "UsernameGeneratorTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.colebraswell.UsernameGeneratorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UsernameGenerator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UsernameGenerator";
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Release;
+		};
+		702A67B430958EB6005EAD22 /* Debug configuration for PBXNativeTarget "UsernameGeneratorUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.colebraswell.UsernameGeneratorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = UsernameGenerator;
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Debug;
+		};
+		702A67B530958EB6005EAD22 /* Release configuration for PBXNativeTarget "UsernameGeneratorUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.colebraswell.UsernameGeneratorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = UsernameGenerator;
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Release;
+		};
+		702A6ED430959A3B005EAD22 /* Debug configuration for PBXNativeTarget "UsernameWidgetExtension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = Entitlements/UsernameWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J37YX2Z6CH;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = UsernameWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = UsernameWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.colebraswell.UsernameGenerator.UsernameWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Debug;
+		};
+		702A6ED530959A3B005EAD22 /* Release configuration for PBXNativeTarget "UsernameWidgetExtension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = Entitlements/UsernameWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J37YX2Z6CH;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = UsernameWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = UsernameWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.colebraswell.UsernameGenerator.UsernameWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		702A678730958EB6005EAD22 /* Build configuration list for PBXProject "UsernameGenerator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				702A67AB30958EB6005EAD22 /* Debug configuration for PBXProject "UsernameGenerator" */,
+				702A67AC30958EB6005EAD22 /* Release configuration for PBXProject "UsernameGenerator" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		702A67AD30958EB6005EAD22 /* Build configuration list for PBXNativeTarget "UsernameGenerator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				702A67AE30958EB6005EAD22 /* Debug configuration for PBXNativeTarget "UsernameGenerator" */,
+				702A67AF30958EB6005EAD22 /* Release configuration for PBXNativeTarget "UsernameGenerator" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		702A67B030958EB6005EAD22 /* Build configuration list for PBXNativeTarget "UsernameGeneratorTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				702A67B130958EB6005EAD22 /* Debug configuration for PBXNativeTarget "UsernameGeneratorTests" */,
+				702A67B230958EB6005EAD22 /* Release configuration for PBXNativeTarget "UsernameGeneratorTests" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		702A67B330958EB6005EAD22 /* Build configuration list for PBXNativeTarget "UsernameGeneratorUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				702A67B430958EB6005EAD22 /* Debug configuration for PBXNativeTarget "UsernameGeneratorUITests" */,
+				702A67B530958EB6005EAD22 /* Release configuration for PBXNativeTarget "UsernameGeneratorUITests" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		702A6ED330959A3B005EAD22 /* Build configuration list for PBXNativeTarget "UsernameWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				702A6ED430959A3B005EAD22 /* Debug configuration for PBXNativeTarget "UsernameWidgetExtension" */,
+				702A6ED530959A3B005EAD22 /* Release configuration for PBXNativeTarget "UsernameWidgetExtension" */,
+			);
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 702A678430958EB6005EAD22 /* Project object */;
+	validationLevel = 1;
+}
