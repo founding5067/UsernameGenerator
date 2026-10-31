@@ -1,10 +1,10 @@
 {
     "extension_name": {
-        "message": "UsernameSafariExtension",
+        "message": "Username Generator",
         "description": "The display name for the extension."
     },
     "extension_description": {
-        "message": "This is UsernameSafariExtension. You should tell us what your extension does here.",
+        "message": "Generate a private username and fill it into the field you're typing in.",
         "description": "Description of what the extension does."
     }
 }

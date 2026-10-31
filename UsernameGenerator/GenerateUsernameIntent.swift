@@ -65,6 +65,9 @@ struct GenerateUsernameIntent: AppIntent {
     @Parameter(title: "Letters and Numbers Only", default: false)
     var lettersAndDigitsOnly: Bool
 
+    @Parameter(title: "Include Filtered Words", default: false)
+    var includeBlockedWords: Bool
+
     static var parameterSummary: some ParameterSummary {
         Summary("Generate a \(\.$theme) username with \(\.$wordCount) words") {
             \.$separator
@@ -72,6 +75,7 @@ struct GenerateUsernameIntent: AppIntent {
             \.$digits
             \.$maxLength
             \.$lettersAndDigitsOnly
+            \.$includeBlockedWords
         }
     }
 
@@ -85,7 +89,8 @@ struct GenerateUsernameIntent: AppIntent {
             theme: theme,
             limitLength: maxLength != nil,
             maxLength: maxLength ?? UsernameOptions().maxLength,
-            lettersAndDigitsOnly: lettersAndDigitsOnly
+            lettersAndDigitsOnly: lettersAndDigitsOnly,
+            includeBlockedWords: includeBlockedWords
         )
         let username = UsernameGenerator().generate(options: options)
         return .result(value: username, dialog: "\(username)")

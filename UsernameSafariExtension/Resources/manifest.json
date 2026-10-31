@@ -19,15 +19,17 @@
         "type": "module"
     },
 
-    "content_scripts": [{
-        "js": [ "content.js" ],
-        "matches": [ "*://example.com/*" ]
-    }],
-
     "action": {
         "default_popup": "popup.html",
         "default_icon": "images/toolbar-icon.svg"
     },
 
-    "permissions": [ ]
+    "commands": {
+        "generate-username": {
+            "suggested_key": { "default": "Command+Shift+U" },
+            "description": "Fill the focused field with a new username"
+        }
+    },
+
+    "permissions": [ "nativeMessaging", "activeTab", "scripting", "contextMenus", "clipboardWrite" ]
 }

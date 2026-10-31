@@ -7,6 +7,9 @@
 
 import SwiftUI
 import WidgetKit
+#if os(macOS)
+import SafariServices
+#endif
 #if canImport(UIKit)
 import UIKit
 #elseif canImport(AppKit)
@@ -24,6 +27,7 @@ struct ContentView: View {
     @AppStorage("limitLength", store: SharedSettings.defaults) private var limitLength = UsernameOptions().limitLength
     @AppStorage("maxLength", store: SharedSettings.defaults) private var maxLength = UsernameOptions().maxLength
     @AppStorage("lettersAndDigitsOnly", store: SharedSettings.defaults) private var lettersAndDigitsOnly = UsernameOptions().lettersAndDigitsOnly
+    @AppStorage("includeBlockedWords", store: SharedSettings.defaults) private var includeBlockedWords = UsernameOptions().includeBlockedWords
 
     @State private var usernames: [String] = []
     @State private var copied: String?
@@ -41,7 +45,8 @@ struct ContentView: View {
             theme: theme,
             limitLength: limitLength,
             maxLength: maxLength,
-            lettersAndDigitsOnly: lettersAndDigitsOnly
+            lettersAndDigitsOnly: lettersAndDigitsOnly,
+            includeBlockedWords: includeBlockedWords
         )
     }
 
@@ -120,6 +125,29 @@ struct ContentView: View {
                     Text("Site rules")
                 } footer: {
                     Text("Some sites cap username length or reject punctuation. If a limit is tight, digits and then words are dropped so every result fits.")
+                }
+
+                Section {
+                    Toggle("Include filtered words", isOn: $includeBlockedWords)
+                } header: {
+                    Text("Word filter")
+                } footer: {
+                    Text("Some words are left out by default because they're crude, violent or otherwise unsuitable. Turn this on to allow them.")
+                }
+
+                Section {
+                    #if os(macOS)
+                    Button("Turn On in Safari…") {
+                        SFSafariApplication.showPreferencesForExtension(
+                            withIdentifier: "com.colebraswell.UsernameGenerator.UsernameSafariExtension")
+                    }
+                    #else
+                    Text("Turn it on in Settings → Apps → Safari → Extensions.")
+                    #endif
+                } header: {
+                    Text("Safari")
+                } footer: {
+                    Text("The Safari extension shows usernames from here and fills the field you're typing in. It can only see a page after you click it.")
                 }
 
                 Section("About") {

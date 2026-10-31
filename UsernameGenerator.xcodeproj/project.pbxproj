@@ -10,6 +10,7 @@
 		702A6EC230959A3A005EAD22 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 702A6EC130959A3A005EAD22 /* WidgetKit.framework */; };
 		702A6EC430959A3A005EAD22 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 702A6EC330959A3A005EAD22 /* SwiftUI.framework */; };
 		702A6ED130959A3B005EAD22 /* UsernameWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 702A6EBF30959A3A005EAD22 /* UsernameWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		70A320CC30963CF900D69CB7 /* UsernameSafariExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 70A320B430963CF900D69CB7 /* UsernameSafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +35,13 @@
 			remoteGlobalIDString = 702A6EBE30959A3A005EAD22;
 			remoteInfo = UsernameWidgetExtension;
 		};
+		70A320CA30963CF900D69CB7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 702A678430958EB6005EAD22 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 70A320B330963CF900D69CB7;
+			remoteInfo = UsernameSafariExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -42,6 +50,7 @@
 			dstPath = "";
 			dstSubfolder = PlugIns;
 			files = (
+				70A320CC30963CF900D69CB7 /* UsernameSafariExtension.appex in Embed Foundation Extensions */,
 				702A6ED130959A3B005EAD22 /* UsernameWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -55,6 +64,7 @@
 		702A6EBF30959A3A005EAD22 /* UsernameWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = UsernameWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		702A6EC130959A3A005EAD22 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = /System/Library/Frameworks/WidgetKit.framework; sourceTree = "<absolute>"; };
 		702A6EC330959A3A005EAD22 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = /System/Library/Frameworks/SwiftUI.framework; sourceTree = "<absolute>"; };
+		70A320B430963CF900D69CB7 /* UsernameSafariExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = UsernameSafariExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -75,6 +85,23 @@
 			);
 			target = 702A6EBE30959A3A005EAD22 /* UsernameWidgetExtension */;
 		};
+		70A320CF30963CF900D69CB7 /* Exceptions for "UsernameSafariExtension" folder in "UsernameSafariExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 70A320B330963CF900D69CB7 /* UsernameSafariExtension */;
+		};
+		70A320E030963CF900D69CB7 /* Exceptions for "UsernameGenerator" folder in "UsernameSafariExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Assets.xcassets,
+				ContentView.swift,
+				GenerateUsernameIntent.swift,
+				UsernameGeneratorApp.swift,
+			);
+			target = 70A320B330963CF900D69CB7 /* UsernameSafariExtension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -82,6 +109,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				702A6EDA30959A3B005EAD22 /* Exceptions for "UsernameGenerator" folder in "UsernameWidgetExtension" target */,
+				70A320E030963CF900D69CB7 /* Exceptions for "UsernameGenerator" folder in "UsernameSafariExtension" target */,
 			);
 			path = UsernameGenerator;
 			sourceTree = "<group>";
@@ -102,6 +130,18 @@
 				702A6ED230959A3B005EAD22 /* Exceptions for "UsernameWidget" folder in "UsernameWidgetExtension" target */,
 			);
 			path = UsernameWidget;
+			sourceTree = "<group>";
+		};
+		70A320B530963CF900D69CB7 /* UsernameSafariExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				70A320CF30963CF900D69CB7 /* Exceptions for "UsernameSafariExtension" folder in "UsernameSafariExtension" target */,
+			);
+			explicitFolders = (
+				Resources/_locales,
+				Resources/images,
+			);
+			path = UsernameSafariExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -129,6 +169,11 @@
 				702A6EC230959A3A005EAD22 /* WidgetKit.framework in Frameworks */,
 			);
 		};
+		70A320B130963CF900D69CB7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -139,6 +184,7 @@
 				702A679E30958EB6005EAD22 /* UsernameGeneratorTests */,
 				702A67A830958EB6005EAD22 /* UsernameGeneratorUITests */,
 				702A6EC530959A3A005EAD22 /* UsernameWidget */,
+				70A320B530963CF900D69CB7 /* UsernameSafariExtension */,
 				702A6EC030959A3A005EAD22 /* Frameworks */,
 				702A678D30958EB6005EAD22 /* Products */,
 			);
@@ -151,6 +197,7 @@
 				702A679B30958EB6005EAD22 /* UsernameGeneratorTests.xctest */,
 				702A67A530958EB6005EAD22 /* UsernameGeneratorUITests.xctest */,
 				702A6EBF30959A3A005EAD22 /* UsernameWidgetExtension.appex */,
+				70A320B430963CF900D69CB7 /* UsernameSafariExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -180,6 +227,7 @@
 			);
 			dependencies = (
 				702A6ED030959A3B005EAD22 /* PBXTargetDependency */,
+				70A320CB30963CF900D69CB7 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				702A678E30958EB6005EAD22 /* UsernameGenerator */,
@@ -250,6 +298,25 @@
 			productReference = 702A6EBF30959A3A005EAD22 /* UsernameWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		70A320B330963CF900D69CB7 /* UsernameSafariExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 70A320D030963CF900D69CB7 /* Build configuration list for PBXNativeTarget "UsernameSafariExtension" */;
+			buildPhases = (
+				70A320B030963CF900D69CB7 /* Sources */,
+				70A320B130963CF900D69CB7 /* Frameworks */,
+				70A320B230963CF900D69CB7 /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				702A678E30958EB6005EAD22 /* UsernameGenerator */,
+				70A320B530963CF900D69CB7 /* UsernameSafariExtension */,
+			);
+			name = UsernameSafariExtension;
+			productName = UsernameSafariExtension;
+			productReference = 70A320B430963CF900D69CB7 /* UsernameSafariExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -274,6 +341,9 @@
 					702A6EBE30959A3A005EAD22 = {
 						CreatedOnToolsVersion = 27.1;
 					};
+					70A320B330963CF900D69CB7 = {
+						CreatedOnToolsVersion = 27.1;
+					};
 				};
 			};
 			buildConfigurationList = 702A678730958EB6005EAD22 /* Build configuration list for PBXProject "UsernameGenerator" */;
@@ -294,6 +364,7 @@
 				702A679A30958EB6005EAD22 /* UsernameGeneratorTests */,
 				702A67A430958EB6005EAD22 /* UsernameGeneratorUITests */,
 				702A6EBE30959A3A005EAD22 /* UsernameWidgetExtension */,
+				70A320B330963CF900D69CB7 /* UsernameSafariExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -315,6 +386,11 @@
 			);
 		};
 		702A6EBD30959A3A005EAD22 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		70A320B230963CF900D69CB7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
 			);
@@ -342,6 +418,11 @@
 			files = (
 			);
 		};
+		70A320B030963CF900D69CB7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -359,6 +440,11 @@
 			isa = PBXTargetDependency;
 			target = 702A6EBE30959A3A005EAD22 /* UsernameWidgetExtension */;
 			targetProxy = 702A6ECF30959A3B005EAD22 /* PBXContainerItemProxy */;
+		};
+		70A320CB30963CF900D69CB7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 70A320B330963CF900D69CB7 /* UsernameSafariExtension */;
+			targetProxy = 70A320CA30963CF900D69CB7 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -749,6 +835,97 @@
 			};
 			name = Release;
 		};
+		70A320CD30963CF900D69CB7 /* Debug configuration for PBXNativeTarget "UsernameSafariExtension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Entitlements/UsernameSafariExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J37YX2Z6CH;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = UsernameSafariExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = UsernameSafariExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.colebraswell.UsernameGenerator.UsernameSafariExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Debug;
+		};
+		70A320CE30963CF900D69CB7 /* Release configuration for PBXNativeTarget "UsernameSafariExtension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Entitlements/UsernameSafariExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J37YX2Z6CH;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = UsernameSafariExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = UsernameSafariExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.colebraswell.UsernameGenerator.UsernameSafariExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				VALIDATE_PRODUCT = YES;
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -789,6 +966,14 @@
 			buildConfigurations = (
 				702A6ED430959A3B005EAD22 /* Debug configuration for PBXNativeTarget "UsernameWidgetExtension" */,
 				702A6ED530959A3B005EAD22 /* Release configuration for PBXNativeTarget "UsernameWidgetExtension" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		70A320D030963CF900D69CB7 /* Build configuration list for PBXNativeTarget "UsernameSafariExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				70A320CD30963CF900D69CB7 /* Debug configuration for PBXNativeTarget "UsernameSafariExtension" */,
+				70A320CE30963CF900D69CB7 /* Release configuration for PBXNativeTarget "UsernameSafariExtension" */,
 			);
 			defaultConfigurationName = Release;
 		};

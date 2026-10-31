@@ -53,6 +53,14 @@ nonisolated enum WordTheme: String, CaseIterable, Codable, Identifiable, Sendabl
 
     var words: [String] { Self.cache[self] ?? WordList.eff }
 
+    func words(includingBlocked: Bool) -> [String] {
+        includingBlocked ? (Self.unfilteredCache[self] ?? WordList.effUnfiltered) : words
+    }
+
+    private static let unfilteredCache: [WordTheme: [String]] = Dictionary(uniqueKeysWithValues: allCases.map { theme in
+        (theme, theme == .any ? WordList.effUnfiltered : WordList.load(resource: theme.rawValue))
+    })
+
     private static let cache: [WordTheme: [String]] = Dictionary(uniqueKeysWithValues: allCases.map { theme in
         let words = theme == .any
             ? WordList.eff

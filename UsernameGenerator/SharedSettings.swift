@@ -27,6 +27,7 @@ nonisolated enum SharedSettings {
         if let v = d.object(forKey: "limitLength") as? Bool { options.limitLength = v }
         if let v = d.object(forKey: "maxLength") as? Int { options.maxLength = v }
         if let v = d.object(forKey: "lettersAndDigitsOnly") as? Bool { options.lettersAndDigitsOnly = v }
+        if let v = d.object(forKey: "includeBlockedWords") as? Bool { options.includeBlockedWords = v }
         return options
     }
 }

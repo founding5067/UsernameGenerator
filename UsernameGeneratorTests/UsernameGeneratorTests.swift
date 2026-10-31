@@ -95,6 +95,15 @@ struct UsernameGeneratorTests {
         #expect(blocked.isEmpty)
     }
 
+    @Test func blockedWordsAreOffByDefaultAndOptIn() {
+        #expect(UsernameOptions().includeBlockedWords == false)
+        #expect(WordTheme.any.words(includingBlocked: true).count == WordList.effUnfiltered.count)
+        #expect(Set(WordTheme.any.words(includingBlocked: false)).isDisjoint(with: WordList.blocked))
+        for theme in WordTheme.allCases {
+            #expect(Set(theme.words).isSubset(of: Set(theme.words(includingBlocked: true))))
+        }
+    }
+
     @Test(arguments: UsernameOptions.maxLengthRange)
     func lengthLimitIsAlwaysRespected(limit: Int) {
         for theme in WordTheme.allCases {

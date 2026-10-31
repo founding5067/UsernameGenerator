@@ -63,6 +63,8 @@ nonisolated struct UsernameOptions: Codable, Equatable {
     var maxLength = 15
     /// Sites that reject punctuation. Forces the separator to none.
     var lettersAndDigitsOnly = false
+    /// Lets words from blocked_words.txt back into the pool.
+    var includeBlockedWords = false
 
     var effectiveSeparator: WordSeparator { lettersAndDigitsOnly ? .none : separator }
 }
@@ -75,7 +77,7 @@ nonisolated struct UsernameGenerator {
     /// The default random source is the system's cryptographically secure generator.
     /// With a length limit, digits are dropped first, then words, so a result always fits.
     func generate<R: RandomNumberGenerator>(options: UsernameOptions, using rng: inout R) -> String {
-        let source = words ?? options.theme.words
+        let source = words ?? options.theme.words(includingBlocked: options.includeBlockedWords)
         guard !source.isEmpty else { return "" }
 
         var wordCount = options.wordCount.clamped(to: UsernameOptions.wordCountRange)

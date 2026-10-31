@@ -2,41 +2,28 @@
 //  SafariWebExtensionHandler.swift
 //  UsernameSafariExtension
 //
-//  Created by Cole Braswell on 10/31/26.
+//  Answers the extension's native messages with usernames from the same generator the app uses,
+//  with the options saved in the App Group. Nothing is stored and nothing leaves the device.
 //
 
 import SafariServices
-import os.log
 
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
+    static let countRange = 1...10
 
     func beginRequest(with context: NSExtensionContext) {
         let request = context.inputItems.first as? NSExtensionItem
+        let message = request?.userInfo?[SFExtensionMessageKey] as? [String: Any]
 
-        let profile: UUID?
-        if #available(iOS 17.0, macOS 14.0, *) {
-            profile = request?.userInfo?[SFExtensionProfileKey] as? UUID
-        } else {
-            profile = request?.userInfo?["profile"] as? UUID
+        var reply: [String: Any] = [:]
+        if message?["action"] as? String == "generate" {
+            let requested = (message?["count"] as? Int) ?? 1
+            let count = min(max(requested, Self.countRange.lowerBound), Self.countRange.upperBound)
+            reply["usernames"] = UsernameGenerator().generateBatch(options: SharedSettings.loadOptions(), count: count)
         }
-
-        let message: Any?
-        if #available(iOS 15.0, macOS 11.0, *) {
-            message = request?.userInfo?[SFExtensionMessageKey]
-        } else {
-            message = request?.userInfo?["message"]
-        }
-
-        os_log(.default, "Received message from browser.runtime.sendNativeMessage: %@ (profile: %@)", String(describing: message), profile?.uuidString ?? "none")
 
         let response = NSExtensionItem()
-        if #available(iOS 15.0, macOS 11.0, *) {
-            response.userInfo = [ SFExtensionMessageKey: [ "echo": message ] ]
-        } else {
-            response.userInfo = [ "message": [ "echo": message ] ]
-        }
-
-        context.completeRequest(returningItems: [ response ], completionHandler: nil)
+        response.userInfo = [SFExtensionMessageKey: reply]
+        context.completeRequest(returningItems: [response], completionHandler: nil)
     }
-
 }
