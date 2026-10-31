@@ -206,6 +206,8 @@ nonisolated struct UsernameOptions: Equatable {
     /// A word kept from a result, so the rest can be rerolled. It sits alongside your own word.
     var keptWord = ""
     var keptPosition = PinPosition.start
+    /// Pronounceable invented words instead of real ones. Themes and patterns don't apply to these.
+    var madeUpWords = false
 
     var effectiveSeparators: [WordSeparator] {
         let separators = WordSeparator.allCases.filter(separators.contains)
@@ -273,17 +275,21 @@ nonisolated struct UsernameGenerator {
         var digitCount = options.includeNumber ? options.digitCount.clamped(to: UsernameOptions.digitCountRange) : 0
         let separator = separator.rawValue
 
+        // Made-up words are one vocabulary for every slot, so there are no themes or patterns.
+        let pattern = options.madeUpWords ? WordPattern.random : options.pattern
         // The vocabularies are respelled once. Each distinct source is then filtered once, however many slots share it.
-        let anyPool = options.pattern == .random
-            ? twist.apply(to: words ?? WordTheme.words(for: options.effectiveThemes, includingBlocked: options.includeBlockedWords))
+        let anyPool = pattern == .random
+            ? twist.apply(to: options.madeUpWords
+                ? MadeUpWords.pool
+                : words ?? WordTheme.words(for: options.effectiveThemes, includingBlocked: options.includeBlockedWords))
             : []
-        let adjectivePool = options.pattern == .adjectiveNoun ? twist.apply(to: adjectives ?? words ?? WordList.adjectives) : []
-        let nounPool = options.pattern == .adjectiveNoun
+        let adjectivePool = pattern == .adjectiveNoun ? twist.apply(to: adjectives ?? words ?? WordList.adjectives) : []
+        let nounPool = pattern == .adjectiveNoun
             ? twist.apply(to: nouns ?? words ?? WordTheme.nouns(for: options.effectiveThemes, includingBlocked: options.includeBlockedWords))
             : []
         func makePools(for count: Int, _ transform: ([String]) -> [String]) -> [[String]] {
             var pools: [[String]]
-            switch options.pattern {
+            switch pattern {
             case .random:
                 pools = Array(repeating: transform(anyPool), count: count)
             case .adjectiveNoun:

@@ -37,6 +37,8 @@ struct ContentView: View {
     @AppStorage("customWord", store: SharedSettings.defaults) private var customWord = UsernameOptions().pinnedWord
     @AppStorage("customWordPosition", store: SharedSettings.defaults) private var customWordPosition = UsernameOptions().pinnedPosition
 
+    @AppStorage("madeUpWords", store: SharedSettings.defaults) private var madeUpWords = UsernameOptions().madeUpWords
+
     @State private var usernames: [GeneratedUsername] = []
     /// A word kept from a result while the rest are rerolled. Lives only until you clear it or close the app.
     @State private var keptWord: KeptWord?
@@ -62,12 +64,13 @@ struct ContentView: View {
             includeBlockedWords: includeBlockedWords,
             twists: twists,
             // With one word there is nothing to pattern or alliterate. The saved choices are kept.
-            pattern: wordCount > 1 ? pattern : .random,
+            pattern: wordCount > 1 && !madeUpWords ? pattern : .random,
             alliterate: wordCount > 1 && alliterate,
             pinnedWord: customWord,
             pinnedPosition: customWordPosition,
             keptWord: keptWord?.word ?? "",
-            keptPosition: keptWord?.position ?? .start
+            keptPosition: keptWord?.position ?? .start,
+            madeUpWords: madeUpWords
         )
     }
 
@@ -183,13 +186,19 @@ struct ContentView: View {
                 Section {
                     NumberStepper(title: "Number of words", value: $wordCount,
                                   range: UsernameOptions.wordCountRange, id: "wordCount")
+                    Picker("Vocabulary", selection: $madeUpWords) {
+                        Text("Real words").tag(false)
+                        Text("Made-up").tag(true)
+                    }
+                    .accessibilityIdentifier("madeUp")
                     MultiSelectMenu(
                         id: "themeMenu", title: "Theme", plural: "themes", label: \.label,
                         selection: Binding { themes } set: { themesRaw = WordTheme.encode($0) }
                     )
+                    .disabled(madeUpWords)
                     // Like Alliterate, a pattern needs at least two words. The saved choice is kept.
                     // A disabled Picker can still open its menu, so show plain text instead.
-                    if wordCount > 1 {
+                    if wordCount > 1 && !madeUpWords {
                         Picker("Pattern", selection: $pattern) {
                             ForEach(WordPattern.allCases) { Text($0.label).tag($0) }
                         }
@@ -328,6 +337,7 @@ struct ContentView: View {
                     _ = theme.words(includingBlocked: true)
                     _ = theme.words(includingBlocked: false)
                 }
+                _ = MadeUpWords.pool
                 _ = WordList.adjectives
                 _ = WordList.nouns
             }.value

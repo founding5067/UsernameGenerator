@@ -1,0 +1,38 @@
+# Fragments that must never appear inside a made-up word (matched anywhere in the word).
+# Made-up words are built from syllables, so unwanted words can form by accident.
+# One fragment per line, lowercase, at least 3 letters. Lines starting with # are ignored.
+# Every word in blocked_words.txt of 3+ letters is checked as well.
+ass
+sex
+fuk
+fuc
+dik
+dck
+cok
+cum
+tit
+nig
+fag
+kkk
+paki
+kike
+spic
+coon
+gook
+slut
+shit
+piss
+porn
+anal
+anus
+rape
+nazi
+homo
+dyke
+cunt
+twat
+tard
+jizz
+boob
+damn
+hell

@@ -500,6 +500,83 @@ struct UsernameGeneratorTests {
         #expect(count(words: 3, pinned: "zed") == 9)
     }
 
+    @Test func madeUpPoolIsLargeAndWellFormed() {
+        let pool = MadeUpWords.pool
+        #expect(pool.count > 100_000)
+        #expect(Set(pool).count == pool.count)
+        let wellFormed = pool.allSatisfy { (4...8).contains($0.count) && $0.allSatisfy { $0.isASCII && $0.isLowercase } }
+        #expect(wellFormed)
+        let realWords = Set(WordList.effUnfiltered)
+        #expect(pool.filter(realWords.contains).count < pool.count / 100, "Made-up words should rarely be real words")
+    }
+
+    @Test func madeUpPoolHasNoBlockedFragments() {
+        let fragments = MadeUpWords.blockedFragments
+        #expect(fragments.count > WordList.blocked.count / 2)
+        #expect(fragments.contains("shit") && fragments.contains("ass"))
+        // Checking every word against every fragment would be slow, so check an even sample.
+        let pool = MadeUpWords.pool
+        for word in stride(from: 0, to: pool.count, by: 20).map({ pool[$0] }) {
+            let hit = fragments.first { word.contains($0) }
+            #expect(hit == nil, "\(word) contains \(hit ?? "")")
+        }
+        #expect(MadeUpWords.containsBlockedFragment("tasser", blocked: fragments, longest: 6))
+        #expect(!MadeUpWords.containsBlockedFragment("vorak", blocked: fragments, longest: 6))
+    }
+
+    @Test func madeUpWordsComeFromThePool() {
+        let pool = Set(MadeUpWords.pool)
+        let options = UsernameOptions(wordCount: 2, separators: [.hyphen], wordCases: [.lower], includeNumber: false, madeUpWords: true)
+        for _ in 0..<50 {
+            let parts = UsernameGenerator().generate(options: options).split(separator: "-").map(String.init)
+            #expect(parts.count == 2)
+            #expect(parts.allSatisfy(pool.contains), "\(parts)")
+        }
+    }
+
+    @Test func madeUpWordsIgnoreThemesAndPatterns() {
+        let pool = Set(MadeUpWords.pool)
+        let options = UsernameOptions(wordCount: 2, separators: [.hyphen], wordCases: [.lower], includeNumber: false,
+                                      themes: [.space], pattern: .adjectiveNoun, madeUpWords: true)
+        for _ in 0..<50 {
+            let parts = UsernameGenerator().generate(options: options).split(separator: "-").map(String.init)
+            #expect(parts.allSatisfy(pool.contains), "\(parts)")
+        }
+    }
+
+    @Test(arguments: [true, false])
+    func madeUpWordsRespectLengthLimitAndAlliteration(alliterate: Bool) {
+        let options = UsernameOptions(wordCount: 3, separators: [.hyphen], wordCases: [.lower],
+                                      limitLength: true, maxLength: 18, twists: [.plain, .leet], alliterate: alliterate, madeUpWords: true)
+        for _ in 0..<50 {
+            let name = UsernameGenerator().generate(options: options)
+            #expect(name.count <= 18, "\(name)")
+            if alliterate {
+                let words = name.split(separator: "-").dropLast(name.last?.isNumber == true ? 1 : 0)
+                #expect(Set(words.compactMap(\.first)).count == 1, "\(name)")
+            }
+        }
+    }
+
+    @Test func madeUpWordsWorkWithPinnedWords() {
+        let options = UsernameOptions(wordCount: 2, separators: [.hyphen], wordCases: [.lower], includeNumber: false,
+                                      pinnedWord: "cole", madeUpWords: true)
+        let parts = UsernameGenerator().generate(options: options).split(separator: "-")
+        #expect(parts.first == "cole")
+        #expect(parts.count == 2)
+    }
+
+    @Test func madeUpWordsCountAndSeed() {
+        let one = UsernameOptions(wordCount: 1, wordCases: [.lower], includeNumber: false, madeUpWords: true)
+        #expect(UsernameGenerator().combinationCount(options: one) == Double(MadeUpWords.pool.count))
+        let options = UsernameOptions(wordCount: 2, separators: [.hyphen, .period], madeUpWords: true)
+        var a = SplitMix64(seed: 7)
+        var b = SplitMix64(seed: 7)
+        for _ in 0..<20 {
+            #expect(UsernameGenerator().generate(options: options, using: &a) == UsernameGenerator().generate(options: options, using: &b))
+        }
+    }
+
     @Test func combinationCountsScaleWithDistinctStyles() {
         let g = UsernameGenerator(words: ["ant", "bee", "cat"])
         let base = UsernameOptions(wordCount: 2, includeNumber: false)

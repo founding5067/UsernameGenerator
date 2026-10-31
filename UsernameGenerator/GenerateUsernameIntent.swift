@@ -97,6 +97,9 @@ struct GenerateUsernameIntent: AppIntent {
     @Parameter(title: "Spellings", default: [.plain])
     var twists: [WordTwist]
 
+    @Parameter(title: "Made-Up Words", default: false)
+    var madeUpWords: Bool
+
     @Parameter(title: "Your Word")
     var yourWord: String?
 
@@ -115,6 +118,7 @@ struct GenerateUsernameIntent: AppIntent {
             \.$pattern
             \.$alliterate
             \.$wordCases
+            \.$madeUpWords
             \.$twists
             \.$yourWord
             \.$yourWordPosition
@@ -141,7 +145,8 @@ struct GenerateUsernameIntent: AppIntent {
             pattern: pattern,
             alliterate: alliterate,
             pinnedWord: yourWord ?? "",
-            pinnedPosition: yourWordPosition
+            pinnedPosition: yourWordPosition,
+            madeUpWords: madeUpWords
         )
         let username = UsernameGenerator().generate(options: options)
         return .result(value: username, dialog: "\(username)")
