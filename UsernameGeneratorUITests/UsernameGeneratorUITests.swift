@@ -58,10 +58,14 @@ final class UsernameGeneratorUITests: XCTestCase {
     }
 
     /// iPhone and iPad expose a stepper as two buttons named "<id>-Increment" and "<id>-Decrement".
-    /// macOS and visionOS expose one stepper element instead, and visionOS names its buttons "plus" and "minus".
+    /// macOS exposes one stepper element with increment and decrement arrows.
+    /// visionOS exposes one stepper element with buttons named "plus" and "minus".
     private func stepperButton(_ id: String, up: Bool) -> XCUIElement {
         #if os(iOS)
         app.buttons["\(id)-\(up ? "Increment" : "Decrement")"]
+        #elseif os(macOS)
+        let stepper = app.steppers[id]
+        return (up ? stepper.incrementArrows : stepper.decrementArrows).firstMatch
         #else
         app.steppers[id].buttons[up ? "plus" : "minus"]
         #endif
@@ -110,14 +114,9 @@ final class UsernameGeneratorUITests: XCTestCase {
     }
 
     private func step(_ id: String, up: Bool, times: Int = 1) {
-        let stepper = app.steppers[id]
         reveal(stepperButton(id, up: up))
         for _ in 0..<times {
-            #if os(macOS)
-            (up ? stepper.incrementArrows : stepper.decrementArrows).firstMatch.click()
-            #else
-            stepperButton(id, up: up).tap()
-            #endif
+            press(stepperButton(id, up: up))
         }
     }
 
@@ -303,19 +302,33 @@ final class UsernameGeneratorUITests: XCTestCase {
     private func openContextMenu(on row: XCUIElement) {
         #if os(macOS)
         row.rightClick()
+        // The menu opens after the click returns. Wait for its first item; with one word it has none to wait for.
+        _ = keepItemQuery().firstMatch.waitForExistence(timeout: 2)
         #else
         row.press(forDuration: 1.0)
         #endif
     }
 
+    /// The "Keep “word”" items of an open context menu. macOS menu items carry their text in `title`, not `label`.
+    private func keepItemQuery() -> XCUIElementQuery {
+        #if os(macOS)
+        app.menuItems.matching(NSPredicate(format: "title BEGINSWITH %@", "Keep “"))
+        #else
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Keep “"))
+        #endif
+    }
+
     /// The "Keep “word”" choices in an open context menu, in the order of the words.
     private func keepChoices() -> [XCUIElement] {
+        keepItemQuery().allElementsBoundByIndex
+    }
+
+    private func keepTitle(of choice: XCUIElement) -> String {
         #if os(macOS)
-        let query = app.menuItems
+        choice.title
         #else
-        let query = app.buttons
+        choice.label
         #endif
-        return query.matching(NSPredicate(format: "label BEGINSWITH %@", "Keep “")).allElementsBoundByIndex
     }
 
     private func word(fromKeepLabel label: String) -> String {
@@ -330,7 +343,7 @@ final class UsernameGeneratorUITests: XCTestCase {
         let choices = keepChoices()
         XCTAssertFalse(choices.isEmpty, "The context menu has no Keep choices")
         let choice = index.map { choices[min($0, choices.count - 1)] } ?? choices[choices.count - 1]
-        let kept = word(fromKeepLabel: choice.label)
+        let kept = word(fromKeepLabel: keepTitle(of: choice))
         press(choice)
         return kept
     }
