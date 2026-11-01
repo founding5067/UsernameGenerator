@@ -43,4 +43,4 @@ Words come from the [EFF Large Wordlist](https://www.eff.org/dice) by the Electr
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+[PolyForm Strict 1.0.0](https://polyformproject.org/licenses/strict/1.0.0). The source is public to read, but you may not distribute it or make changes or derivative works. Noncommercial use is permitted. See [LICENSE](LICENSE).
