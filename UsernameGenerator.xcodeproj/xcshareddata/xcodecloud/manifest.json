@@ -1,0 +1,9 @@
+{
+  "id" : "1d5857eb-26c8-401d-88da-d180fcdfd14f",
+  "targets" : [
+    {
+      "id" : "8936a9b7-2a65-4eee-8dc7-09ddc6438a15",
+      "name" : "UsernameGenerator"
+    }
+  ]
+}
